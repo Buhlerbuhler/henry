@@ -1,0 +1,799 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Henry Hajer — Family Memoir</title>
+  <style>
+    :root {
+      --paper: #eee8d9;
+      --paper-deep: #d7cab0;
+      --ink: #181713;
+      --muted: #6f6658;
+      --red: #b63b2e;
+      --gold: #c69b45;
+      --line: #181713;
+      --shadow: rgba(24,23,19,.18);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 18% 10%, rgba(198,155,69,.15), transparent 28rem),
+        radial-gradient(circle at 86% 18%, rgba(182,59,46,.12), transparent 22rem),
+        linear-gradient(135deg, #f3ecda 0%, var(--paper) 48%, #dfd2b7 100%);
+      color: var(--ink);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .16;
+      background-image:
+        repeating-linear-gradient(0deg, transparent 0 4px, rgba(24,23,19,.05) 4px 5px),
+        repeating-linear-gradient(90deg, transparent 0 13px, rgba(24,23,19,.03) 13px 14px);
+      mix-blend-mode: multiply;
+      z-index: 20;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .site-shell {
+      width: min(1440px, 100%);
+      margin: 0 auto;
+      border-left: 2px solid var(--line);
+      border-right: 2px solid var(--line);
+      min-height: 100vh;
+      background: rgba(238,232,217,.78);
+      box-shadow: 0 0 80px var(--shadow);
+    }
+
+    .intro {
+      min-height: 38vh;
+      padding: clamp(1.25rem, 5vw, 4rem);
+      border-bottom: 2px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 1rem;
+      background: rgba(238,232,217,.42);
+    }
+
+    .intro-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      max-width: 72rem;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      font-size: .82rem;
+      color: var(--muted);
+      border-bottom: 2px solid var(--line);
+      padding-bottom: .7rem;
+    }
+
+    h1 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(4rem, 14vw, 12rem);
+      line-height: .8;
+      letter-spacing: -.1em;
+      margin: 0;
+      text-transform: uppercase;
+      font-weight: 900;
+      max-width: 72rem;
+    }
+
+    .intro p {
+      margin: 0;
+      max-width: 44rem;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.15rem, 2vw, 1.75rem);
+      line-height: 1.25;
+    }
+
+    .enter-button {
+      width: fit-content;
+      border: 2px solid var(--line);
+      background: transparent;
+      color: var(--ink);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      padding: .75rem .95rem;
+      font-weight: 800;
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .enter-button:hover,
+    .enter-button:focus-visible {
+      background: var(--ink);
+      color: var(--paper);
+      outline: 0;
+    }
+
+    .book-interface {
+      display: grid;
+      grid-template-columns: minmax(210px, 320px) 1fr;
+      border-bottom: 2px solid var(--line);
+    }
+
+    .tabs {
+      border-right: 2px solid var(--line);
+      background: rgba(24,23,19,.035);
+      position: sticky;
+      top: 0;
+      align-self: start;
+      max-height: 100vh;
+      overflow: auto;
+    }
+
+    .tabs-header {
+      padding: 1rem;
+      border-bottom: 2px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .tab {
+      width: 100%;
+      border: 0;
+      border-bottom: 2px solid var(--line);
+      background: transparent;
+      color: var(--ink);
+      padding: .9rem 1rem;
+      display: grid;
+      grid-template-columns: 3.3rem 1fr;
+      gap: .75rem;
+      align-items: start;
+      text-align: left;
+      cursor: pointer;
+      font: inherit;
+      min-height: 64px;
+    }
+
+    .tab span {
+      font-family: Georgia, "Times New Roman", serif;
+      font-weight: 900;
+      font-size: 1.45rem;
+      line-height: .95;
+    }
+
+    .tab b {
+      font-size: .86rem;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }
+
+    .tab:hover,
+    .tab:focus-visible,
+    .tab.is-active {
+      background: var(--ink);
+      color: var(--paper);
+      outline: 0;
+    }
+
+    .reading-stage {
+      min-height: 70vh;
+      position: relative;
+    }
+
+    .chapter-panel {
+      display: none;
+      animation: lift .25s ease;
+    }
+
+    .chapter-panel.is-active {
+      display: block;
+    }
+
+    @keyframes lift {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .panel-meta {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+      padding: .8rem 1rem;
+      border-bottom: 2px solid var(--line);
+      text-transform: uppercase;
+      font-weight: 800;
+      color: var(--muted);
+    }
+
+    .panel-meta p {
+      margin: 0;
+    }
+
+    .chapter-grid {
+      display: grid;
+      grid-template-columns: minmax(95px, 160px) minmax(0, 1fr);
+    }
+
+    .folio {
+      border-right: 2px solid var(--line);
+      padding: 1rem;
+      min-height: 65vh;
+      position: sticky;
+      top: 0;
+      align-self: start;
+    }
+
+    .folio span {
+      display: block;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(4rem, 10vw, 9rem);
+      line-height: .75;
+      letter-spacing: -.08em;
+      font-weight: 900;
+    }
+
+    .folio small {
+      display: block;
+      margin-top: 1rem;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      text-transform: uppercase;
+      color: var(--muted);
+      letter-spacing: .08em;
+    }
+
+    .chapter-copy {
+      padding: clamp(1rem, 4vw, 4rem);
+      max-width: 980px;
+    }
+
+    .eyebrow {
+      margin: 0 0 1rem;
+      color: var(--red);
+      text-transform: uppercase;
+      font-weight: 900;
+      letter-spacing: .06em;
+    }
+
+    h2 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(3rem, 8vw, 8rem);
+      line-height: .82;
+      margin: 0 0 2rem;
+      letter-spacing: -.08em;
+      text-transform: uppercase;
+    }
+
+    .body-copy {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.12rem, 1.55vw, 1.42rem);
+      line-height: 1.63;
+      max-width: 72ch;
+    }
+
+    .body-copy p {
+      margin: 0 0 1.1rem;
+    }
+
+    .body-copy p:first-child::first-letter {
+      font-size: 4.6rem;
+      line-height: .8;
+      float: left;
+      padding: .14rem .45rem 0 0;
+      font-weight: 900;
+      color: var(--red);
+    }
+
+
+    .body-copy h4 {
+      margin: 2rem 0 .5rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      text-transform: uppercase;
+      font-size: .98rem;
+      border-top: 2px solid var(--line);
+      padding-top: .8rem;
+      letter-spacing: .05em;
+    }
+
+    .body-copy li {
+      margin: .15rem 0 .35rem 1rem;
+      padding-left: .45rem;
+    }
+
+    .site-footer {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+      padding: 1rem;
+      text-transform: uppercase;
+      font-size: .85rem;
+      color: var(--muted);
+    }
+
+
+    @media (max-width: 900px) {
+      .site-shell {
+        border-left: 0;
+        border-right: 0;
+      }
+
+      .intro {
+        min-height: 30vh;
+      }
+
+      .intro-meta {
+        flex-direction: column;
+      }
+
+      .book-interface {
+        grid-template-columns: 1fr;
+      }
+
+      .tabs {
+        position: relative;
+        max-height: none;
+        border-right: 0;
+      }
+
+      .tab {
+        grid-template-columns: 2.7rem 1fr;
+      }
+
+      .chapter-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .folio {
+        min-height: auto;
+        position: relative;
+        border-right: 0;
+        border-bottom: 2px solid var(--line);
+      }
+
+      .folio small {
+        writing-mode: horizontal-tb;
+        transform: none;
+      }
+    }
+
+    @media print {
+      .tabs, .enter-button {
+        display: none;
+      }
+
+      .book-interface, .chapter-grid {
+        display: block;
+      }
+
+      .chapter-panel {
+        display: block !important;
+        break-before: page;
+      }
+
+      .folio {
+        border: 0;
+        min-height: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="site-shell">
+    <header class="intro" aria-label="Opening title">
+      <div class="intro-meta">
+        <span>Family Memoir</span>
+        <span>1929—2022</span>
+      </div>
+      <h1>Henry Hajer</h1>
+      <p>A Mennonite family story of war, displacement, faith, work, and home.</p>
+      <button class="enter-button" type="button" data-jump>Start reading ↓</button>
+    </header>
+
+    <section class="book-interface" id="story">
+      <nav class="tabs" aria-label="Chapter tabs">
+        <div class="tabs-header"><span>Index</span><span>↕</span></div>
+        <button class="tab" data-target="editors-note" aria-selected="false"><span>00</span><b>Editor’s Note</b></button>
+<button class="tab is-active" data-target="chapter-1" aria-selected="true"><span>01</span><b>A Boy in Wymyschle</b></button>
+<button class="tab" data-target="chapter-2" aria-selected="false"><span>02</span><b>War Comes</b></button>
+<button class="tab" data-target="chapter-3" aria-selected="false"><span>03</span><b>The Long Walk Home</b></button>
+<button class="tab" data-target="chapter-4" aria-selected="false"><span>04</span><b>Between Two Homes</b></button>
+<button class="tab" data-target="chapter-5" aria-selected="false"><span>05</span><b>Fallingbostel</b></button>
+<button class="tab" data-target="chapter-6" aria-selected="false"><span>06</span><b>A New Beginning</b></button>
+<button class="tab" data-target="chapter-7" aria-selected="false"><span>07</span><b>Building a Life</b></button>
+<button class="tab" data-target="chapter-8" aria-selected="false"><span>08</span><b>Home</b></button>
+<button class="tab" data-target="closing-note" aria-selected="false"><span>09</span><b>Editor’s Closing Note</b></button>
+      </nav>
+
+      <div class="reading-stage">
+        
+    <article class="chapter-panel" id="editors-note" data-panel>
+      <div class="panel-meta">
+        <p>EDITOR&#x27;S NOTE</p>
+        <p></p>
+      </div>
+      <div class="chapter-grid">
+        <aside class="folio">
+          <span>00</span>
+          <small>EDITOR&#x27;S NOTE</small>
+        </aside>
+        <section class="chapter-copy">
+          <p class="eyebrow">How this family memoir came together</p>
+          <h2>Editor’s Note</h2>
+          <div class="body-copy">
+            <p>This memoir began as two separate collections of memories dictated by Henry Hajer and transcribed by his daughter. Those original documents have been combined here into one continuous narrative, with the goal of preserving Henry’s voice while making the story easier to read and follow.</p>
+<p>The wording remains, as much as possible, Henry’s own. In places where the two memoirs repeated the same events, the accounts have been combined into a single version. Additional details from family records, immigration information, and the obituaries of Henry and Helen Hajer have been included where they help complete the story.</p>
+<p>Earlier family records sometimes spell the family name as Heier, while Henry’s memoirs and later Canadian records use Hajer. This edition uses Hajer, the spelling Henry and his family used throughout their lives in Canada.</p>
+<p>This book is not meant to be a complete history of every event Henry lived through. It is a family memoir: the story of a Mennonite boy from Wymyschle, Poland, who lived through war, displacement, immigration, work, family, loss, and faith. Above all, it preserves the testimony Henry returned to again and again—that through every hardship and blessing, God was faithful.</p>
+          </div>
+        </section>
+      </div>
+    </article>
+    
+
+    <article class="chapter-panel is-active" id="chapter-1" data-panel>
+      <div class="panel-meta">
+        <p>CHAPTER 1</p>
+        <p>1929–1939</p>
+      </div>
+      <div class="chapter-grid">
+        <aside class="folio">
+          <span>01</span>
+          <small>CHAPTER 1</small>
+        </aside>
+        <section class="chapter-copy">
+          <p class="eyebrow">A Boy in Wymyschle  1929–1939</p>
+          <h2>A Boy in Wymyschle</h2>
+          <div class="body-copy">
+            <p>I hope that my experiences and the few lines I jot down may be a blessing to all who take the time to read them, and that through them God be glorified, who saved also me, not worthy of any of His mercies, through Christ my Saviour.</p>
+<p>I, Henry Hajer, was born on January 30, 1929, in Deutsch Wymyschle, Poland, a Mennonite village about 40 kilometres west of Warsaw. My parents, Wilhelm Hajer and Bertha Kliewer, were farmers. I was the fifth of seven children.</p>
+<p>My recollections of my childhood in Wymyschle date back only a few years prior to the start of the Second World War, which began on September 1, 1939.</p>
+<p>Wymyschle consisted of about thirty-five small farms, which offered only a meagre existence for the families living there. Our farm raised mainly rye and potatoes, as well as hay for the few cows that supplied us with milk and cheese. Like most families, we owned only one horse. A few pigs and chickens supplemented the rest of our income.</p>
+<p>Since the village was populated mainly by Mennonites, we spoke Low German at home and High German in church, which was the centre of much of our community life for both old and young. As a six or seven-year-old, I had to memorize a new Bible verse every week for Sunday School.</p>
+<p>Our family consisted of my parents, my brother Willi, my sisters Bertha, Hilla, and Thilde, then I came along, followed by my sister Ruth and my youngest brother, Harry.</p>
+<p>My older brothers and sisters helped with the many chores on the farm, such as seeding by broadcasting, planting potatoes, cutting hay, and the household work. Even at the age of eight to ten, I was expected to help by hoeing, pulling weeds, and harvesting potatoes.</p>
+<p>During the winter months, the older children were active in the church choir, music, and youth activities. During the long winter evenings we listened to Dad read the newspaper Zionsbote, which was mailed to us from America by uncles who had immigrated there in the early 1920s. Dad had to sit close to the lamp because of its dim flame.</p>
+<p>In addition to my parents and their seven children, Grandpa Hajer and Aunt Tina lived with us, making our home very crowded. My recollection of our family life is one of hard work and toil, but also of church, family, and the ordinary routines of farm life.</p>
+<p>Then, in 1939, war broke out between Germany and Poland. The little one-room school that I attended quickly changed to teaching only in Polish. The attitude of our Polish neighbours also changed almost immediately.</p>
+          </div>
+        </section>
+      </div>
+    </article>
+    
+
+    <article class="chapter-panel" id="chapter-2" data-panel>
+      <div class="panel-meta">
+        <p>CHAPTER 2</p>
+        <p>1939–1944</p>
+      </div>
+      <div class="chapter-grid">
+        <aside class="folio">
+          <span>02</span>
+          <small>CHAPTER 2</small>
+        </aside>
+        <section class="chapter-copy">
+          <p class="eyebrow">War Comes  1939–1944</p>
+          <h2>War Comes</h2>
+          <div class="body-copy">
+            <p>I recall that September 1st morning when, while taking our horse to pasture, distant bomb explosions signalled the beginning of difficult times.</p>
+<p>Dad was taken away by the authorities because he was considered a German. He returned after four weeks of confinement and harsh treatment. The so-called liberation by the German Army took place within three weeks, and from that point on everything changed.</p>
+<p>Church attendance, which had been such an important part of our upbringing, came to an abrupt halt. Our so-called liberators—the German army and its officials—had other plans for us, training and teaching us the philosophy of the Third Reich.</p>
+<p>That same year, our parents were asked to manage a dry goods store in Gąbin, located about seven kilometres from Wymyschle. My brother Willi married Thilka Kliewer and remained on the farm. The rest of the family, of course, moved to Gąbin.</p>
+<p>Our ties to the church and other religious activities were completely disrupted because of interference from the German government. As the conflict with Russia drew nearer, my brother Willi was drafted into the German army. Thilka received help in running the farm from a Polish couple assigned there by the German authorities. Willi was stationed in Berlin as part of an anti-aircraft artillery unit.</p>
+<p>I accompanied Thilka on a visit to Willi in Berlin in 1942. At that time, Berlin had not yet been bombed by the Americans. I remember Willi coming home on leave twice. In 1943 he was able to see his firstborn son, Frank, but he never met his daughter, Heidi. According to reports, Willi survived the fighting in Russia but later died in a prisoner-of-war camp in Czechoslovakia.</p>
+<p>I attended school in Gąbin beginning in 1940. We were taught by two German women who had come from Germany, and we were constantly indoctrinated with the idea that Germans were the only pure race. Every week we attended Hitler Youth activities, where we were taught to march in formation and stand at attention while being addressed by our leaders. These activities kept us away from church, and we were ridiculed for believing in a Jewish man named Jesus.</p>
+<p>During the early years of the German occupation, Dad encountered serious problems with the authorities. They insisted that he join the Nazi Party, but he refused. As a result, he came under close scrutiny, and the authorities looked for any opportunity to charge him with an offence.</p>
+<p>Since operating the store required occasional buying trips to Litzmannstadt, Dad travelled there from time to time. On one of those trips, police searched his luggage and found some bacon that he intended to give to one of his suppliers. Because food was strictly rationed and bacon required ration stamps, he was arrested and accused of smuggling a regulated food item. He was sentenced to three months in jail.</p>
+<p>By the middle of 1942, the persecution of the Jewish people living in Poland had begun. All Jews were required to wear a Star of David on their clothing. They were not allowed to walk on the sidewalks and were expected to bow and greet anyone in uniform. During the summer of 1944, I remember all the Jewish people being gathered onto a sports field. According to reports, they were then transported in trucks that served as gas chambers and were buried in mass graves.</p>
+<p>Around this time, I turned fifteen and was ordered to join a work camp supervised by youth leaders. The camp was located about twenty kilometres from our home. By then, the war had turned against Germany, and the Russian army was advancing into Poland.</p>
+<p>The purpose of the camp, which consisted of about two hundred boys my age, was to dig deep trenches and wide ditches that were intended to stop advancing tanks. We were treated in a military fashion—strictly and harshly—and the food was poor.</p>
+<p>I decided that I would escape. One day I went to the latrine, left all of my belongings behind, and ran into the nearby forest. I wandered for hours, hoping I was heading in the direction of home. Eventually I came to a farmyard and hid in a shed filled with straw.</p>
+<p>Remembering how to pray, I cried out to God for protection. I could hear someone feeding cattle in the adjoining barn, but I remained hidden until everything became quiet. Then I continued my journey.</p>
+<p>Late that evening, I finally arrived home.</p>
+<p>Realizing the danger I was in, my parents advised me to leave immediately and go to my brother Willi’s farm in Wymyschle. My sister-in-law, Thilka, explained my presence there to the Polish couple who had been assigned to help with the farm. They agreed not to reveal that I was hiding there.</p>
+<p>By early January 1945, everything was in confusion. I returned to Gąbin to join the rest of my family. The Russian front had advanced as far as Warsaw, only about forty kilometres away.</p>
+<p>Preparations were made to flee before the front reached us. Two wagons were loaded with our belongings, and our two horses were harnessed to begin our journey westward in the hope of escaping the advancing Russian army.</p>
+          </div>
+        </section>
+      </div>
+    </article>
+    
+
+    <article class="chapter-panel" id="chapter-3" data-panel>
+      <div class="panel-meta">
+        <p>CHAPTER 3</p>
+        <p>1945</p>
+      </div>
+      <div class="chapter-grid">
+        <aside class="folio">
+          <span>03</span>
+          <small>CHAPTER 3</small>
+        </aside>
+        <section class="chapter-copy">
+          <p class="eyebrow">The Long Walk Home  1945</p>
+          <h2>The Long Walk Home</h2>
+          <div class="body-copy">
+            <p>By the middle of January, we were on our way. The weather was bitterly cold. Our intended route west had already been cut off, according to reports, so we headed north instead, hoping to find another way through. Unfortunately, we were unsuccessful.</p>
+<p>My Grandpa Hajer had passed away in 1943, but Aunt Tina, who was an invalid, was with us. My sister-in-law, Thilka, together with her son Frank and daughter Heidi, who had been born in 1944, also travelled with us.</p>
+<p>The first two days of our journey went fairly well. On the third day, however, one of our wagons overturned. Although no one was seriously injured, we lost valuable time reloading our belongings. That night we stayed in an abandoned house.</p>
+<p>On the fourth day, we could hear the war drawing nearer. German soldiers—some retreating, others simply fleeing—passed us in great numbers. One of our horses became lame, forcing us to stop at a deserted farm where Dad managed to repair its horseshoe.</p>
+<p>Things became quiet for a short time. A lone German soldier, exhausted and discouraged, joined us. He spoke longingly of his wife and two children, expressing his hope that he might see them again.</p>
+<p>Less than half an hour later, Russian tanks arrived. We were forced off the road as Russian soldiers approached us. They took our watches and jewellery, and then, to our horror, we watched them shoot that German soldier in the head.</p>
+<p>More and more Russian troops followed. Our horses were confiscated and replaced with half-starved animals. We were ordered to turn around and head back. That night we stayed in another abandoned house.</p>
+<p>Realizing that our only hope was in the Lord, my father prayed that evening in a way I have never forgotten.</p>
+<p>The next morning we prepared to continue our journey home. When we went outside, we discovered that our wagons had been emptied and our horses had disappeared. From that point on, we continued our journey on foot.</p>
+<p>Aunt Tina was unable to walk and had to be carried. My mother was also suffering greatly from arthritis, making it very difficult for her to walk, especially while caring for the baby.</p>
+<p>Somewhere along the way we were joined by the Ratzlaff family from Wymyschle. Together we made our way south toward home.</p>
+<p>When we entered one village looking for shelter, we encountered several Russian soldiers. One of them, obviously drunk, repeatedly fired his automatic weapon over our heads. I can still remember the sound of the bullets whistling past us.</p>
+<p>God’s protection over us was unmistakable.</p>
+<p>When we arrived home in January, we found that our farm had been taken over by the Polish authorities and given to a Polish family. During our journey home, we were badly mistreated because we were German-speaking Mennonites. I was placed on our former homestead as a farmhand. Mom was given a single room in the neighbourhood with my youngest brother, Harry, who was eleven years old. My three sisters were taken to Gąbin and placed under the care of the local authorities.</p>
+<p>Shortly after our return to Wymyschle, Dad was taken from us and deported to Russia to a labour camp. My brother Harry contracted an illness and died on May 23, 1945.</p>
+<p>With no support from the government, my mother depended entirely upon the Lord. Through her prayers, she received help from local people.</p>
+<p>God’s gracious hand was again so evident in the following experiences.</p>
+<p>The Russian commissars were managers of a large estate that was formerly the property of some German nobles. Workers were needed to harvest sugar beets. Thilka’s parents, as mentioned earlier, were on good terms with the Polish people in charge. Mr. Kliewer borrowed a team of horses and a wagon and came to Gąbin to pick us up and take us to the large estate. There we received lodging and food in exchange for helping with the beet harvest.</p>
+<p>By November of 1945, we were faced with the same dilemma once again. Our work there had come to an end. Through another of God’s miracles, we were able to convince the man in charge to take us to the railway station in Gostynin so that we could attempt to travel to Germany. Praise God, he agreed.</p>
+<p>Mid-November was cold and damp, and we were transported to the railway station on the back of an open farm truck. A pair of high-top men’s boots, which Mom had somehow managed to acquire, were sold to provide the money for our train tickets to Berlin.</p>
+<p>God performed a miracle by bringing us safely toward Berlin, where many others were not so fortunate. Some were arrested and sent to Russia.</p>
+          </div>
+        </section>
+      </div>
+    </article>
+    
+
+    <article class="chapter-panel" id="chapter-4" data-panel>
+      <div class="panel-meta">
+        <p>CHAPTER 4</p>
+        <p>1945–1948</p>
+      </div>
+      <div class="chapter-grid">
+        <aside class="folio">
+          <span>04</span>
+          <small>CHAPTER 4</small>
+        </aside>
+        <section class="chapter-copy">
+          <p class="eyebrow">Germany  1945–1948</p>
+          <h2>Between Two Homes</h2>
+          <div class="body-copy">
+            <p>I have not yet mentioned what happened to my dad during the period from February to November of 1945.</p>
+<p>Shortly after our arrival back in our village in February, Dad was arrested and taken to Kutno, a larger centre about 20 kilometres from home. There he joined hundreds of German men who were loaded into boxcars and transported to Russia, to what is now the southern part of Ukraine, where they were placed in a labour camp. The camp consisted of industrial work, building war equipment—mainly tanks. Approximately 3,000 prisoners were taken there at the outset.</p>
+<p>The horrible living conditions and meagre food rations quickly took their toll. Men died every day from these conditions. Praise the Lord, Dad survived, and by the time he was released only about 900 prisoners remained.</p>
+<p>Rather than returning to Poland, Dad felt the Lord leading him to continue on into Germany. Before our arrival, he also made a stop in Berlin.</p>
+<p>In Berlin lived a couple in the Russian sector whom my grandparents had befriended during the First World War. During the years in between, and throughout the Second World War, they had remained in contact. Dad informed them of his whereabouts after being assigned by the authorities to work on a farm in northeastern Germany.</p>
+<p>As previously mentioned, we were at a railway station awaiting our departure to Berlin, which eventually took place late that night. We arrived in Frankfurt an der Oder, where the border police thoroughly checked all passengers. Here God’s protection was very evident and an answer to Mom’s prayers. Many people, according to reports, were taken off the train, mistreated, and sent back to Poland or Russia, depending on where their place of residence was. In our case, all the police wanted to know was where we were going.</p>
+<p>God is a God of miracles.</p>
+<p>Arriving at the Schlesischer Bahnhof in Berlin, we were placed into a bunker that had survived all the bombings. I personally could not believe how badly devastated Berlin was as a result of the Allied air raids. At the bunker we were offered some thin soup. I still remember the bitter taste.</p>
+<p>Mom remembered the names of the friends whom Dad had previously contacted, and we were informed that Dad had made it to Germany. You can just imagine our surprise and the Lord’s leading. After contacting Dad, he was able to join us. We had no idea of my father’s whereabouts before this, but through these family friends we learned that he had been released from Russia and was now in the eastern zone of Germany. Shortly afterward, we were reunited.</p>
+<p>From Berlin we were eventually placed on a farm near Mecklenburg in early December 1945, living in one room about 70 kilometres west of Berlin near Magdeburg. My memories of what we actually did there are vague, since we only spent a few months there.</p>
+<p>Dad put things into motion with the hope that somehow we would be allowed to relocate to West Germany, the portion occupied by the British. This became a reality in the spring of 1946, just before the border crossing was permanently closed by the Russian authorities.</p>
+<p>One incident at the crossing is still etched in my mind. All of us had to go through showers, and our clothing went through a heat treatment in order to kill all the bugs—lice—that we had picked up on the way there.</p>
+<p>In West Germany we were again allocated to farms. The village of Esbeck, near Hanover, became our home until early September 1948. The Bartel farm in Esbeck was our place of employment. Besides one tractor to do the work needed, they also had three or four teams of horses and two yoke of oxen. I was privileged to look after one team—or yoke.</p>
+<p>There I learned the true meaning of the saying, “stubborn as an ox.” The lead animal was named August and was mean, on top of everything else. Going out in the morning to do fieldwork, these animals hardly moved and had to be encouraged by using a whip, but when quitting time came I had a tough time holding them back.</p>
+<p>Socially, I made some friends there. No church or meeting place was in existence, although there was a church building, but it was unattended. As a result, I became involved in activities such as dancing. Not that I broke any local laws, but I must admit that not all of my activities were suited for a Christian. My faith at that time was very superficial.</p>
+<p>It was considered a status symbol for a young man of eighteen or nineteen to smoke, sometimes even cheap cigarettes or tobacco that caused chest pains when inhaled. My parents even allowed me to brew schnapps from locally grown beets.</p>
+<p>Dynamite!</p>
+<p>During our stay in Esbeck, our family made contact with Dad’s brothers in the United States. At that time, the United States would not accept displaced persons, so we pursued immigration to either Paraguay or Canada. In fact, during the interim we had purchased implements and farm tools to be used in Paraguay’s bush.</p>
+<p>By God’s leading, however, we were granted permission to go to Canada, which at first had not been possible because of an eye illness my mother had. Dad also established contact with MCC, and with the help of his brothers in the United States, the possibility of beginning again in Canada became real.</p>
+          </div>
+        </section>
+      </div>
+    </article>
+    
+
+    <article class="chapter-panel" id="chapter-5" data-panel>
+      <div class="panel-meta">
+        <p>CHAPTER 5</p>
+        <p>1948</p>
+      </div>
+      <div class="chapter-grid">
+        <aside class="folio">
+          <span>05</span>
+          <small>CHAPTER 5</small>
+        </aside>
+        <section class="chapter-copy">
+          <p class="eyebrow">Fallingbostel  1948</p>
+          <h2>Fallingbostel</h2>
+          <div class="body-copy">
+            <p>Early in the fall of 1948, we pulled up our roots and moved to Fallingbostel, a former military installation. The barracks were already occupied by many Mennonites who intended to immigrate to Paraguay or Canada.</p>
+<p>At Fallingbostel, God had exciting plans in store for us. Many Mennonite immigrants gathered there for church meetings, and it was there that I once again came under the preaching of God’s Word.</p>
+<p>It did not take long for me to make friends at the camp. The Foth family and the Bartel family from Poland were also there. Ben Foth and Ron Bartel became my close buddies.</p>
+<p>They especially pointed out a group of girls from the Harder family. At first I was very attracted to the twin sisters, who were my age, but then Leni, the youngest of the four, made a lasting impression on me.</p>
+<p>My attempts to ask her on a date failed at first, but eventually they succeeded. Leni wasted no time pointing out the package of cigarettes in my shirt pocket and making her disapproval known.</p>
+<p>The Harder sisters and their mother faithfully attended church at the camp meeting hall. Leni had no trouble convincing me to come along, and before I realized it I was singing in the camp church choir.</p>
+<p>Our discussions during our dates centred around religion, sin, forgiveness, and, of course, eternal life. On August 22, 1948, in the evening, I decided to accept what Christ had done for me personally, receive forgiveness, and become a child of God. This took place in a forest just outside the camp.</p>
+<p>Jesus helped me to change from that moment on. I quit smoking and have never done it again.</p>
+<p>My friends Ron and Ben took the same step of faith the following day.</p>
+<p>A few weeks later, on September 28, 1948, I was baptized in Gronau, Germany.</p>
+<p>The relationship with Leni grew, and we promised to make contact again when we were both in Canada. Helen and her family left Fallingbostel in September 1948, and our family followed in October.</p>
+<p>By then, the immigration process for Canada had begun. Dad had established contact with his three brothers in the United States, and through their assistance had made contact with MCC. At one time we had expected to immigrate to Paraguay and had even purchased implements and farm tools for that purpose. But by God’s leading, permission was granted for us to go to Canada instead.</p>
+<p>We did not yet know what life in Canada would bring, but once again the Lord had opened a way forward.</p>
+          </div>
+        </section>
+      </div>
+    </article>
+    
+
+    <article class="chapter-panel" id="chapter-6" data-panel>
+      <div class="panel-meta">
+        <p>CHAPTER 6</p>
+        <p>1948–1950</p>
+      </div>
+      <div class="chapter-grid">
+        <aside class="folio">
+          <span>06</span>
+          <small>CHAPTER 6</small>
+        </aside>
+        <section class="chapter-copy">
+          <p class="eyebrow">A New Beginning  1948–1950</p>
+          <h2>A New Beginning</h2>
+          <div class="body-copy">
+            <p>The Harder family left for Canada about one month before us. We arrived in Halifax aboard the S.S. General Langfitt on October 22, 1948. The voyage across the Atlantic was not pleasant. It was very stormy, and we became seasick.</p>
+<p>Upon our arrival in Halifax, we boarded a train bound for Winnipeg. As I observed the landscape of Nova Scotia and northern Quebec, I could not understand why we had left Germany. I became homesick. We stopped in Montreal and Sherbrooke before finally arriving in Winnipeg.</p>
+<p>In order to immigrate to Canada, it was necessary to have a sponsor who would guarantee employment. Our travel expenses also had to be paid in advance. This was arranged by my uncles in the United States, and the debt was paid off after we had been in Canada for one year.</p>
+<p>At the CPR station in Winnipeg, we were greeted by a truck driver representing the Manitoba Sugar Company, our sponsors, who had arranged work for us during our first year in Canada. Our belongings were loaded onto a two-ton truck. Mom and Dad rode in the cab, while my sisters and I huddled together in the back.</p>
+<p>I will never forget that cold ride to Oakville, near Portage la Prairie.</p>
+<p>Once again, we found ourselves on a farm, which became the end of our journey. We were placed in a one-room bunkhouse with no insulation, no beds, no furniture, and located only a few feet from the CPR main line. During the night we were awakened by the passing trains. The sound of the whistles drove me crazy. I would have given anything just to go back to Germany.</p>
+<p>But God is good.</p>
+<p>The next day, Mr. and Mrs. Abe Dyck from Newton Siding arrived with food and an offer we could not refuse: move to Newton and be with people who spoke German. The greatest surprise was that they spoke our language. There we spent the winter, cared for by generous people and given warmer accommodations on the Dyck farm. I even attended school there, sharing one classroom with students from every grade while learning English.</p>
+<p>Our first obligation to the Manitoba Sugar Company was to hoe and clean the sugar beet fields in the spring and then help with the harvest in the fall.</p>
+<p>Contact with Leni, now known as Helen, was re-established as well. Helen and her family had settled in Main Centre, Saskatchewan, and I immediately began corresponding with her. Our family fulfilled its obligation to the Manitoba Sugar Company and was then free to move wherever we wanted.</p>
+<p>With the money we had earned by working in the beet fields, we had enough to repay some of our debts to our uncles and make a down payment on a small house on McGee Street in Winnipeg.</p>
+<p>My first job in Winnipeg was working in a commercial laundry, Peerless Laundry. Dad and Bertha found employment at a glove factory. Sister Ruth worked for a wealthy family on Wellington Crescent. I cannot recall what Sister Hilla did.</p>
+<p>In April 1950, I was hired as a warehouseman at Western Grocers.</p>
+<p>In the spring of 1950, Helen moved to Winnipeg. Since Helen and her family had first settled in Saskatchewan, she had found employment at the Bible School in Herbert, Saskatchewan.</p>
+<p>Here in Winnipeg we established our relationship anew. Even though Helen had some doubts about this young man from Poland, I did some serious praying, and God answered.</p>
+<p>Our relationship blossomed. We became engaged on May 7, 1950, and were married on September 16, 1950, in a double wedding with Helen’s sister Suzie and Frank Kliewer. Helen’s family had moved to Winnipeg during that same summer.</p>
+<p>I have not always walked as a child of God ought to, but I must confess that the Lord has never disappointed us. God gave me the hardest-working, faithful wife.</p>
+<p>And, of course, God blessed us with a wonderful family.</p>
+          </div>
+        </section>
+      </div>
+    </article>
+    
+
+    <article class="chapter-panel" id="chapter-7" data-panel>
+      <div class="panel-meta">
+        <p>CHAPTER 7</p>
+        <p>1951–1991</p>
+      </div>
+      <div class="chapter-grid">
+        <aside class="folio">
+          <span>07</span>
+          <small>CHAPTER 7</small>
+        </aside>
+        <section class="chapter-copy">
+          <p class="eyebrow">Building a Life  1951–1991</p>
+          <h2>Building a Life</h2>
+          <div class="body-copy">
+            <p>On July 12, 1951, our first child, Rudy, was born. During the following years, the Lord blessed us with two more sons, Herbert and Harvey, and our long-awaited daughter, Wendy. To bring some balance to our family, we later welcomed two more daughters through adoption, Cindy and Jennifer.</p>
+<p>The Lord blessed us in a most wonderful way.</p>
+<p>Helen was a faithful wife and mother, and her relationship with God was the core of her life. She witnessed whenever and wherever she could, and her faith was woven into all her commitments and interests. She opened her heart not only to our own children, but also to many foster children who came through our home.</p>
+<p>Helen also had an artistic nature. Her talent showed itself especially in sewing, and over time her many designs—particularly wedding gowns—grew into her own business and shop in downtown Winnipeg.</p>
+<p>My work at Western Grocers was briefly interrupted in 1959 when our family planned to move to California, but after a few months we abandoned those plans. I returned to Western Grocers and gradually advanced through several positions in the warehouse and office.</p>
+<p>For six years I travelled extensively as supervisor of the Independent Trade, responsible for store development and retail operations. Those were demanding years for Helen, who often cared for our family alone four days each week.</p>
+<p>The Lord later opened a position for me in the buying department, where I eventually became Head Buyer. In 1977, the president of our parent company, Westfair Foods, asked me to take over the marketing department for all of Western Canada.</p>
+<p>When the head office relocated to Calgary, we decided not to move because I was approaching retirement. I remained in Winnipeg in another position until retiring in 1991 at the age of sixty-two.</p>
+<p>I was grateful for the work the Lord provided and for the opportunities that came with it. In business, as in life, I tried to be faithful in what was given to me. Those who worked with me remembered me as a man of integrity and honesty in my business dealings.</p>
+<p>The Lord has been so good to us—to our family, our children, our health, and the many other blessings He graciously provided.</p>
+<p>Yet in 1982, our oldest son, Rudy, was killed in a traffic accident, leaving behind his wife, Lisa, and their two children.</p>
+<p>Life brought us many blessings, but also deep sorrow. Through both, the Lord remained faithful.</p>
+          </div>
+        </section>
+      </div>
+    </article>
+    
+
+    <article class="chapter-panel" id="chapter-8" data-panel>
+      <div class="panel-meta">
+        <p>CHAPTER 8</p>
+        <p>1993–2022</p>
+      </div>
+      <div class="chapter-grid">
+        <aside class="folio">
+          <span>08</span>
+          <small>CHAPTER 8</small>
+        </aside>
+        <section class="chapter-copy">
+          <p class="eyebrow">Home  1993–2022</p>
+          <h2>Home</h2>
+          <div class="body-copy">
+            <p>In 1993, we moved from the city to St. Laurent, which became our permanent home until 2005. During many winters, the Lord provided enough that we were able to spend time in Hawaii and other warm places.</p>
+<p>Those years were a blessing to us. In Hawaii, we enjoyed the warm beaches, the friendships we made, and the local church community that became part of our lives. In the summers, much of our time was spent at the cottage, where we hosted family and friends with many good meals, barbecues, and days by the lake.</p>
+<p>Helen was always active. She especially enjoyed swimming and waterskiing, and she loved having people gathered around. The cottage became a place where family could come together.</p>
+<p>I spent many days in the garden and was always happy to share the harvest with our children and grandchildren. As we grew older and the winters became harsher, we moved back to the city, but we continued travelling Highway 6 to the cottage as often as we could. Many days were still spent there, with me in the garden or on the riding mower, and Helen cutting the lawn with the walking mower.</p>
+<p>Our church home in Winnipeg was initially South End MB Church, located at Juno and William. Helen was baptized there. I had been baptized earlier in Gronau, Germany.</p>
+<p>When Portage Avenue MB Church was founded, we attended there for a short time before transferring to Elmwood MB Church, since we lived nearby.</p>
+<p>After moving to St. Laurent, we joined the local Mission Church, which was supported by and affiliated with the EMMC.</p>
+<p>When we moved back to Winnipeg in 2005, we once again became part of an MB church family, attending Eastview Community Church.</p>
+<p>The Lord was faithful to us through every season of life. He carried us through war, hunger, separation, immigration, work, family, sorrow, and old age. Again and again, He provided what we needed.</p>
+<p>Thank you, Lord, for Your goodness—and thank you, Helen, for loving me.</p>
+<p>I love you.</p>
+          </div>
+        </section>
+      </div>
+    </article>
+    
+
+    <article class="chapter-panel" id="closing-note" data-panel>
+      <div class="panel-meta">
+        <p>CLOSING NOTE</p>
+        <p>2022</p>
+      </div>
+      <div class="chapter-grid">
+        <aside class="folio">
+          <span>09</span>
+          <small>CLOSING NOTE</small>
+        </aside>
+        <section class="chapter-copy">
+          <p class="eyebrow">Helen and Henry</p>
+          <h2>Editor’s Closing Note</h2>
+          <div class="body-copy">
+            <p>Helen passed away peacefully on March 4, 2022, at the age of eighty-nine. She and Henry had been married for seventy-one years.</p>
+<p>Henry followed just thirty-seven days later, passing away on April 10, 2022, at the age of ninety-three. Their lives had been shaped by faith, family, work, hospitality, and a deep devotion to one another.</p>
+          </div>
+        </section>
+      </div>
+    </article>
+    
+
+    
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <span>Draft website / single-file prototype</span>
+      <span>Designed for easy editing and later publishing</span>
+    </footer>
+  </main>
+
+  <script>
+    const tabs = [...document.querySelectorAll('.tab')];
+    const panels = [...document.querySelectorAll('[data-panel]')];
+
+    function activate(id, push = true) {
+      tabs.forEach(tab => {
+        const active = tab.dataset.target === id;
+        tab.classList.toggle('is-active', active);
+        tab.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+
+      panels.forEach(panel => panel.classList.toggle('is-active', panel.id === id));
+
+      if (push) {
+        history.replaceState(null, '', '#' + id);
+      }
+
+      document.querySelector('#story').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => activate(tab.dataset.target));
+    });
+
+    const jumpButton = document.querySelector('[data-jump]');
+    if (jumpButton) {
+      jumpButton.addEventListener('click', () => {
+        document.querySelector('#story').scrollIntoView({ behavior: 'smooth' });
+      });
+    }
+
+    const initial = location.hash.replace('#', '');
+    if (initial && document.getElementById(initial)) {
+      activate(initial, false);
+    }
+  </script>
+</body>
+</html>
