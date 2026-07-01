@@ -6,391 +6,394 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Henry Hajer — Family Memoir</title>
   <style>
-    :root {
-      --paper: #eee8d9;
-      --paper-deep: #d7cab0;
-      --ink: #181713;
-      --muted: #6f6658;
-      --red: #b63b2e;
-      --gold: #c69b45;
-      --line: #181713;
-      --shadow: rgba(24,23,19,.18);
-    }
+  :root {
+    --paper: #eee8d9;
+    --paper-deep: #d7cab0;
+    --ink: #181713;
+    --muted: #6f6658;
+    --red: #b63b2e;
+    --gold: #c69b45;
+    --line: #181713;
+    --shadow: rgba(24,23,19,.18);
+  }
 
-    * {
-      box-sizing: border-box;
-    }
+  * {
+    box-sizing: border-box;
+  }
 
-    html {
-      scroll-behavior: smooth;
-    }
+  html {
+    scroll-behavior: smooth;
+  }
 
-    body {
-      margin: 0;
-      background:
-        radial-gradient(circle at 18% 10%, rgba(198,155,69,.15), transparent 28rem),
-        radial-gradient(circle at 86% 18%, rgba(182,59,46,.12), transparent 22rem),
-        linear-gradient(135deg, #f3ecda 0%, var(--paper) 48%, #dfd2b7 100%);
-      color: var(--ink);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      min-height: 100vh;
-    }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 18% 10%, rgba(198,155,69,.15), transparent 28rem),
+      radial-gradient(circle at 86% 18%, rgba(182,59,46,.12), transparent 22rem),
+      linear-gradient(135deg, #f3ecda 0%, var(--paper) 48%, #dfd2b7 100%);
+    color: var(--ink);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    min-height: 100vh;
+  }
 
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      opacity: .16;
-      background-image:
-        repeating-linear-gradient(0deg, transparent 0 4px, rgba(24,23,19,.05) 4px 5px),
-        repeating-linear-gradient(90deg, transparent 0 13px, rgba(24,23,19,.03) 13px 14px);
-      mix-blend-mode: multiply;
-      z-index: 20;
-    }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: .16;
+    background-image:
+      repeating-linear-gradient(0deg, transparent 0 4px, rgba(24,23,19,.05) 4px 5px),
+      repeating-linear-gradient(90deg, transparent 0 13px, rgba(24,23,19,.03) 13px 14px);
+    mix-blend-mode: multiply;
+    z-index: 20;
+  }
 
-    a {
-      color: inherit;
-    }
+  a {
+    color: inherit;
+  }
 
+  .site-shell {
+    width: min(1440px, 100%);
+    margin: 0 auto;
+    border-left: 2px solid var(--line);
+    border-right: 2px solid var(--line);
+    min-height: 100vh;
+    background: rgba(238,232,217,.78);
+    box-shadow: 0 0 80px var(--shadow);
+  }
+
+  .intro {
+    min-height: 38vh;
+    padding: clamp(1.25rem, 5vw, 4rem);
+    border-bottom: 2px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 1rem;
+    background: rgba(238,232,217,.42);
+  }
+
+  .intro-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    max-width: 72rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    font-size: .82rem;
+    color: var(--muted);
+    border-bottom: 2px solid var(--line);
+    padding-bottom: .7rem;
+  }
+
+  h1 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(4rem, 14vw, 12rem);
+    line-height: .8;
+    letter-spacing: -.1em;
+    margin: 0;
+    text-transform: uppercase;
+    font-weight: 900;
+    max-width: 72rem;
+  }
+
+  .intro p {
+    margin: 0;
+    max-width: 44rem;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.15rem, 2vw, 1.75rem);
+    line-height: 1.25;
+  }
+
+  .enter-button {
+    width: fit-content;
+    border: 2px solid var(--line);
+    background: transparent;
+    color: var(--ink);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    padding: .75rem .95rem;
+    font-weight: 800;
+    cursor: pointer;
+    font: inherit;
+  }
+
+  .enter-button:hover,
+  .enter-button:focus-visible {
+    background: var(--ink);
+    color: var(--paper);
+    outline: 0;
+  }
+
+  .book-interface {
+    display: grid;
+    grid-template-columns: minmax(210px, 320px) 1fr;
+    border-bottom: 2px solid var(--line);
+    align-items: start;
+  }
+
+  .tabs {
+    border-right: 2px solid var(--line);
+    background: rgba(24,23,19,.035);
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow: auto;
+  }
+
+  .tabs-header,
+  .panel-meta {
+    min-height: 64px;
+    padding: .8rem 1rem;
+    border-bottom: 2px solid var(--line);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    align-items: center;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: var(--muted);
+  }
+
+  .tabs-header {
+    color: var(--ink);
+  }
+
+  .panel-meta p {
+    margin: 0;
+  }
+
+  .tab {
+    width: 100%;
+    border: 0;
+    border-bottom: 2px solid var(--line);
+    background: transparent;
+    color: var(--ink);
+    padding: .9rem 1rem;
+    display: grid;
+    grid-template-columns: 3.3rem 1fr;
+    gap: .75rem;
+    align-items: start;
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+    min-height: 64px;
+  }
+
+  .tab span {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 900;
+    font-size: 1.45rem;
+    line-height: .95;
+  }
+
+  .tab b {
+    font-size: .86rem;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+  }
+
+  .tab:hover,
+  .tab:focus-visible,
+  .tab.is-active {
+    background: var(--ink);
+    color: var(--paper);
+    outline: 0;
+  }
+
+  .reading-stage {
+    min-height: 70vh;
+    position: relative;
+  }
+
+  .chapter-panel {
+    display: none;
+    animation: lift .25s ease;
+  }
+
+  .chapter-panel.is-active {
+    display: block;
+  }
+
+  @keyframes lift {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .chapter-grid {
+    display: grid;
+    grid-template-columns: minmax(95px, 160px) minmax(0, 1fr);
+  }
+
+  .folio {
+    border-right: 2px solid var(--line);
+    padding: 1rem;
+    min-height: 65vh;
+    position: sticky;
+    top: 0;
+    align-self: start;
+  }
+
+  .folio span {
+    display: block;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(4rem, 10vw, 9rem);
+    line-height: .75;
+    letter-spacing: -.08em;
+    font-weight: 900;
+  }
+
+  .folio small {
+    display: block;
+    margin-top: 1rem;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    text-transform: uppercase;
+    color: var(--muted);
+    letter-spacing: .08em;
+  }
+
+  .chapter-copy {
+    padding: clamp(1rem, 4vw, 4rem);
+    max-width: 980px;
+  }
+
+  .eyebrow {
+    margin: 0 0 1rem;
+    color: var(--red);
+    text-transform: uppercase;
+    font-weight: 900;
+    letter-spacing: .06em;
+  }
+
+  h2 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(3rem, 8vw, 8rem);
+    line-height: .82;
+    margin: 0 0 2rem;
+    letter-spacing: -.08em;
+    text-transform: uppercase;
+  }
+
+  .body-copy {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.12rem, 1.55vw, 1.42rem);
+    line-height: 1.63;
+    max-width: 72ch;
+  }
+
+  .body-copy p {
+    margin: 0 0 1.1rem;
+  }
+
+  .body-copy p:first-child::first-letter {
+    font-size: 4.6rem;
+    line-height: .8;
+    float: left;
+    padding: .14rem .45rem 0 0;
+    font-weight: 900;
+    color: var(--red);
+  }
+
+  .body-copy h4 {
+    margin: 2rem 0 .5rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    text-transform: uppercase;
+    font-size: .98rem;
+    border-top: 2px solid var(--line);
+    padding-top: .8rem;
+    letter-spacing: .05em;
+  }
+
+  .body-copy li {
+    margin: .15rem 0 .35rem 1rem;
+    padding-left: .45rem;
+  }
+
+  .site-footer {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    padding: 1rem;
+    text-transform: uppercase;
+    font-size: .85rem;
+    color: var(--muted);
+  }
+
+  @media (max-width: 900px) {
     .site-shell {
-      width: min(1440px, 100%);
-      margin: 0 auto;
-      border-left: 2px solid var(--line);
-      border-right: 2px solid var(--line);
-      min-height: 100vh;
-      background: rgba(238,232,217,.78);
-      box-shadow: 0 0 80px var(--shadow);
+      border-left: 0;
+      border-right: 0;
     }
 
     .intro {
-      min-height: 38vh;
-      padding: clamp(1.25rem, 5vw, 4rem);
-      border-bottom: 2px solid var(--line);
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      gap: 1rem;
-      background: rgba(238,232,217,.42);
+      min-height: 30vh;
     }
 
     .intro-meta {
-      display: flex;
-      justify-content: space-between;
-      gap: 1rem;
-      max-width: 72rem;
-      text-transform: uppercase;
-      letter-spacing: .06em;
-      font-size: .82rem;
-      color: var(--muted);
-      border-bottom: 2px solid var(--line);
-      padding-bottom: .7rem;
-    }
-
-    h1 {
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(4rem, 14vw, 12rem);
-      line-height: .8;
-      letter-spacing: -.1em;
-      margin: 0;
-      text-transform: uppercase;
-      font-weight: 900;
-      max-width: 72rem;
-    }
-
-    .intro p {
-      margin: 0;
-      max-width: 44rem;
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(1.15rem, 2vw, 1.75rem);
-      line-height: 1.25;
-    }
-
-    .enter-button {
-      width: fit-content;
-      border: 2px solid var(--line);
-      background: transparent;
-      color: var(--ink);
-      text-transform: uppercase;
-      letter-spacing: .06em;
-      padding: .75rem .95rem;
-      font-weight: 800;
-      cursor: pointer;
-      font: inherit;
-    }
-
-    .enter-button:hover,
-    .enter-button:focus-visible {
-      background: var(--ink);
-      color: var(--paper);
-      outline: 0;
+      flex-direction: column;
     }
 
     .book-interface {
-      display: grid;
-      grid-template-columns: minmax(210px, 320px) 1fr;
-      border-bottom: 2px solid var(--line);
+      grid-template-columns: 1fr;
     }
 
     .tabs {
-      border-right: 2px solid var(--line);
-      background: rgba(24,23,19,.035);
-      position: sticky;
-      top: 0;
-      align-self: start;
-      max-height: 100vh;
-      overflow: auto;
+      position: relative;
+      max-height: none;
+      border-right: 0;
     }
 
-    .tabs-header {
-      padding: 1rem;
-      border-bottom: 2px solid var(--line);
-      display: flex;
-      justify-content: space-between;
-      gap: 1rem;
-      text-transform: uppercase;
-      font-weight: 800;
+    .tabs-header,
+    .panel-meta {
+      min-height: 58px;
     }
 
     .tab {
-      width: 100%;
-      border: 0;
-      border-bottom: 2px solid var(--line);
-      background: transparent;
-      color: var(--ink);
-      padding: .9rem 1rem;
-      display: grid;
-      grid-template-columns: 3.3rem 1fr;
-      gap: .75rem;
-      align-items: start;
-      text-align: left;
-      cursor: pointer;
-      font: inherit;
-      min-height: 64px;
-    }
-
-    .tab span {
-      font-family: Georgia, "Times New Roman", serif;
-      font-weight: 900;
-      font-size: 1.45rem;
-      line-height: .95;
-    }
-
-    .tab b {
-      font-size: .86rem;
-      text-transform: uppercase;
-      letter-spacing: .03em;
-    }
-
-    .tab:hover,
-    .tab:focus-visible,
-    .tab.is-active {
-      background: var(--ink);
-      color: var(--paper);
-      outline: 0;
-    }
-
-    .reading-stage {
-      min-height: 70vh;
-      position: relative;
-    }
-
-    .chapter-panel {
-      display: none;
-      animation: lift .25s ease;
-    }
-
-    .chapter-panel.is-active {
-      display: block;
-    }
-
-    @keyframes lift {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .panel-meta {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 1rem;
-      padding: .8rem 1rem;
-      border-bottom: 2px solid var(--line);
-      text-transform: uppercase;
-      font-weight: 800;
-      color: var(--muted);
-    }
-
-    .panel-meta p {
-      margin: 0;
+      grid-template-columns: 2.7rem 1fr;
     }
 
     .chapter-grid {
-      display: grid;
-      grid-template-columns: minmax(95px, 160px) minmax(0, 1fr);
+      grid-template-columns: 1fr;
     }
 
     .folio {
-      border-right: 2px solid var(--line);
-      padding: 1rem;
-      min-height: 65vh;
-      position: sticky;
-      top: 0;
-      align-self: start;
-    }
-
-    .folio span {
-      display: block;
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(4rem, 10vw, 9rem);
-      line-height: .75;
-      letter-spacing: -.08em;
-      font-weight: 900;
+      min-height: auto;
+      position: relative;
+      border-right: 0;
+      border-bottom: 2px solid var(--line);
     }
 
     .folio small {
+      writing-mode: horizontal-tb;
+      transform: none;
+    }
+  }
+
+  @media print {
+    .tabs,
+    .enter-button {
+      display: none;
+    }
+
+    .book-interface,
+    .chapter-grid {
       display: block;
-      margin-top: 1rem;
-      writing-mode: vertical-rl;
-      transform: rotate(180deg);
-      text-transform: uppercase;
-      color: var(--muted);
-      letter-spacing: .08em;
     }
 
-    .chapter-copy {
-      padding: clamp(1rem, 4vw, 4rem);
-      max-width: 980px;
+    .chapter-panel {
+      display: block !important;
+      break-before: page;
     }
 
-    .eyebrow {
-      margin: 0 0 1rem;
-      color: var(--red);
-      text-transform: uppercase;
-      font-weight: 900;
-      letter-spacing: .06em;
+    .folio {
+      border: 0;
+      min-height: auto;
     }
-
-    h2 {
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(3rem, 8vw, 8rem);
-      line-height: .82;
-      margin: 0 0 2rem;
-      letter-spacing: -.08em;
-      text-transform: uppercase;
-    }
-
-    .body-copy {
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(1.12rem, 1.55vw, 1.42rem);
-      line-height: 1.63;
-      max-width: 72ch;
-    }
-
-    .body-copy p {
-      margin: 0 0 1.1rem;
-    }
-
-    .body-copy p:first-child::first-letter {
-      font-size: 4.6rem;
-      line-height: .8;
-      float: left;
-      padding: .14rem .45rem 0 0;
-      font-weight: 900;
-      color: var(--red);
-    }
-
-
-    .body-copy h4 {
-      margin: 2rem 0 .5rem;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      text-transform: uppercase;
-      font-size: .98rem;
-      border-top: 2px solid var(--line);
-      padding-top: .8rem;
-      letter-spacing: .05em;
-    }
-
-    .body-copy li {
-      margin: .15rem 0 .35rem 1rem;
-      padding-left: .45rem;
-    }
-
-    .site-footer {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 1rem;
-      padding: 1rem;
-      text-transform: uppercase;
-      font-size: .85rem;
-      color: var(--muted);
-    }
-
-
-    @media (max-width: 900px) {
-      .site-shell {
-        border-left: 0;
-        border-right: 0;
-      }
-
-      .intro {
-        min-height: 30vh;
-      }
-
-      .intro-meta {
-        flex-direction: column;
-      }
-
-      .book-interface {
-        grid-template-columns: 1fr;
-      }
-
-      .tabs {
-        position: relative;
-        max-height: none;
-        border-right: 0;
-      }
-
-      .tab {
-        grid-template-columns: 2.7rem 1fr;
-      }
-
-      .chapter-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .folio {
-        min-height: auto;
-        position: relative;
-        border-right: 0;
-        border-bottom: 2px solid var(--line);
-      }
-
-      .folio small {
-        writing-mode: horizontal-tb;
-        transform: none;
-      }
-    }
-
-    @media print {
-      .tabs, .enter-button {
-        display: none;
-      }
-
-      .book-interface, .chapter-grid {
-        display: block;
-      }
-
-      .chapter-panel {
-        display: block !important;
-        break-before: page;
-      }
-
-      .folio {
-        border: 0;
-        min-height: auto;
-      }
-    }
-  </style>
+  }
+</style>
 </head>
 <body>
   <main class="site-shell">
