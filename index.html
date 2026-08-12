@@ -86,6 +86,34 @@
     padding-bottom: .7rem;
   }
 
+
+  .intro-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(150px, 18vw, 280px);
+  gap: clamp(1.25rem, 4vw, 4rem);
+  align-items: end;
+  max-width: 100%;
+}
+
+.intro-text {
+  min-width: 0;
+}
+
+.intro-photo {
+  width: 100%;
+  align-self: end;
+  overflow: hidden;
+  background: var(--paper);
+  transform: translateX(-4rem);
+}
+
+.intro-photo img {
+  width: 100%;
+  height: auto;
+  display: block;
+   opacity: .85;
+  }
+
   h1 {
     font-family: Georgia, "Times New Roman", serif;
     font-size: clamp(4rem, 14vw, 12rem);
@@ -95,6 +123,11 @@
     text-transform: uppercase;
     font-weight: 900;
     max-width: 72rem;
+  }
+
+
+  .intro-text h1 {
+    max-width: 7.5ch;
   }
 
   .intro p {
@@ -367,6 +400,29 @@
       flex-direction: column;
     }
 
+
+    .intro-layout {
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+      align-items: start;
+    }
+
+    .intro-text h1 {
+      max-width: none;
+    }
+
+    .intro-photo {
+      width: min(320px, 100%);
+      min-height: auto;
+      max-height: none;
+      align-self: start;
+    }
+
+    .intro-photo img {
+      aspect-ratio: 4 / 5;
+      height: auto;
+    }
+
     .book-interface {
       grid-template-columns: 1fr;
     }
@@ -435,14 +491,23 @@
 <body>
   <main class="site-shell">
     <header class="intro" aria-label="Opening title">
-      <div class="intro-meta">
-        <span>Family Memoir</span>
-        <span>1929—2022</span>
-      </div>
+  <div class="intro-meta">
+    <span>Family Memoir</span>
+    <span>1929—2022</span>
+  </div>
+
+  <div class="intro-layout">
+    <div class="intro-text">
       <h1>Henry Hajer</h1>
       <p>A Story of Faith, Family, and New Beginnings</p>
       <button class="enter-button" type="button" data-jump>Start reading ↓</button>
-    </header>
+    </div>
+
+    <div class="intro-photo" aria-label="Portrait of Henry Hajer">
+      <img src="https://raw.githubusercontent.com/Buhlerbuhler/henry/refs/heads/main/hh.png" alt="Portrait of Henry Hajer">
+    </div>
+  </div>
+</header>
 
     <section class="book-interface" id="story">
       <nav class="tabs" aria-label="Chapter tabs">
