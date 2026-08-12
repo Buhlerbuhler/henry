@@ -1,0 +1,1361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hajer Family Tree</title>
+<style>
+:root {
+  --paper:#eee8d9;
+  --paper-deep:#d7cab0;
+  --ink:#181713;
+  --muted:#6f6658;
+  --red:#b63b2e;
+  --gold:#c69b45;
+  --line:#181713;
+  --shadow:rgba(24,23,19,.18);
+
+  /* aliases used by the family-tree layout */
+  --paper2:var(--paper-deep);
+  --granite:var(--paper-deep);
+  --pine:var(--red);
+  --lake:var(--gold);
+  --rose:var(--red);
+  --lichen:var(--gold);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;color:var(--ink);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+  background:
+    radial-gradient(circle at 12% 6%,rgba(198,155,69,.15),transparent 26rem),
+    radial-gradient(circle at 90% 20%,rgba(182,59,46,.11),transparent 24rem),
+    linear-gradient(135deg,var(--paper),var(--paper-deep));
+  min-height:100vh;
+}
+button{font:inherit;color:inherit}
+.shell{width:min(1500px,100%);margin:0 auto;min-height:100vh;background:var(--paper);border-left:2px solid var(--line);border-right:2px solid var(--line);box-shadow:0 0 70px var(--shadow)}
+header{padding:clamp(1.2rem,4vw,3.2rem);border-bottom:2px solid var(--line)}
+.kicker{display:flex;justify-content:space-between;gap:1rem;text-transform:uppercase;font-size:.76rem;letter-spacing:.08em;color:var(--muted);padding-bottom:.7rem;border-bottom:2px solid var(--line)}
+h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(3.8rem,11vw,9rem);line-height:.8;letter-spacing:-.075em;text-transform:uppercase;margin:1.6rem 0 1rem}
+.lede{font-family:Georgia,"Times New Roman",serif;font-size:clamp(1.1rem,2vw,1.5rem);line-height:1.35;max-width:55rem;margin:0}
+.centerpiece{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;padding:1.1rem clamp(1rem,4vw,3rem);border-bottom:2px solid var(--line);background:rgba(198,155,69,.08)}
+.direction{text-transform:uppercase;font-weight:900;letter-spacing:.07em;color:var(--muted)}
+.direction.right{text-align:right}
+.root-card{border:2px solid var(--line);background:var(--pine);color:var(--paper);padding:1rem 1.35rem;text-align:center;min-width:min(330px,80vw)}
+.root-card strong{font-family:Georgia,"Times New Roman",serif;font-size:1.45rem}
+.root-card small{display:block;margin-top:.35rem;opacity:.78}
+.controls{display:flex;flex-wrap:wrap;border-bottom:2px solid var(--line)}
+.controls button{border:0;border-right:2px solid var(--line);background:transparent;padding:.85rem 1rem;text-transform:uppercase;font-weight:900;letter-spacing:.04em;cursor:pointer}
+.controls button:hover,.controls button.is-active{background:var(--ink);color:var(--paper)}
+.view{display:none}
+.view.is-active{display:block}
+.view-head{padding:1.3rem clamp(1rem,4vw,3rem);border-bottom:2px solid var(--line);display:flex;justify-content:space-between;gap:1rem;align-items:end}
+.view-head h2{font-family:Georgia,"Times New Roman",serif;font-size:clamp(2rem,5vw,4.5rem);letter-spacing:-.05em;line-height:.9;margin:0;text-transform:uppercase}
+.view-head p{max-width:38rem;margin:0;color:var(--muted);font-size:.85rem}
+.ancestor-wrap{padding:1rem clamp(.7rem,2vw,1.5rem) 2rem;overflow-x:auto}
+.generation{min-width:max-content;margin:0 auto 1rem}
+.gen-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:.35rem 0 .55rem}
+.gen-row{display:flex;justify-content:center;gap:.7rem;min-width:max-content}
+.person-card{width:210px;min-height:118px;border:2px solid var(--line);background:var(--paper);padding:.8rem;text-align:left;cursor:pointer;position:relative}
+.person-card:hover,.person-card:focus-visible{background:var(--ink);color:var(--paper);outline:0}
+.person-card.root{background:var(--pine);color:var(--paper)}
+.person-card .name{font-family:Georgia,"Times New Roman",serif;font-weight:700;font-size:1.1rem;line-height:1.05}
+.person-card .dates{font-size:.76rem;margin-top:.4rem;color:var(--muted)}
+.person-card:hover .dates,.person-card.root .dates{color:inherit;opacity:.78}
+.person-card .place{font-size:.68rem;line-height:1.3;margin-top:.45rem}
+.branch-button{display:block;width:100%;border:2px solid var(--line);border-top:0;background:rgba(182,59,46,.07);padding:.55rem;cursor:pointer;text-transform:uppercase;font-size:.68rem;font-weight:900;letter-spacing:.05em}
+.branch-button:hover{background:var(--pine);color:var(--paper)}
+.couple-block{width:210px}
+.line-wrap{padding:1.5rem clamp(1rem,4vw,3rem) 3rem;overflow-x:auto}
+.line-track{display:flex;align-items:stretch;gap:0;min-width:max-content}
+.line-person{width:225px;border:2px solid var(--line);background:var(--paper);padding:1rem}
+.line-person:first-child{background:var(--pine);color:var(--paper)}
+.line-arrow{display:grid;place-items:center;width:54px;font-size:1.7rem;color:var(--rose);font-weight:900}
+.line-person .name{font-family:Georgia,"Times New Roman",serif;font-size:1.2rem;font-weight:700}
+.line-person .dates{font-size:.75rem;margin-top:.35rem}
+.line-person .place{font-size:.7rem;margin-top:.6rem;color:var(--muted)}
+.line-person:first-child .place{color:inherit;opacity:.8}
+.desc-wrap{padding:1.5rem clamp(1rem,3vw,2rem) 3rem}
+.desc-root{max-width:440px;margin:0 auto 1.5rem;border:2px solid var(--line);background:var(--pine);color:var(--paper);padding:1rem;text-align:center}
+.desc-root strong{font-family:Georgia,"Times New Roman",serif;font-size:1.4rem}
+.child-grid{display:grid;grid-template-columns:repeat(4,minmax(220px,1fr));gap:1rem;align-items:start}
+.family-branch{border:2px solid var(--line);background:rgba(255,255,255,.18)}
+.family-branch>h3{font-family:Georgia,"Times New Roman",serif;margin:0;padding:1rem;background:var(--lake);color:var(--paper);font-size:1.25rem}
+.grandchild{padding:.8rem;border-top:2px solid var(--line)}
+.grandchild strong{font-family:Georgia,"Times New Roman",serif;font-size:1rem}
+.greats{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.55rem}
+.greats span{border:1px solid var(--line);padding:.25rem .4rem;font-size:.68rem;background:var(--paper)}
+.empty-note{padding:.8rem;color:var(--muted);font-size:.72rem;border-top:2px solid var(--line)}
+.branch-meta{padding:.55rem .8rem;border-top:2px solid var(--line);font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.desc-summary{margin-top:.55rem;font-size:.76rem;text-transform:uppercase;letter-spacing:.05em;opacity:.82}
+.drawer{position:fixed;inset:0 0 0 auto;width:min(430px,100vw);background:var(--paper);border-left:2px solid var(--line);z-index:50;transform:translateX(102%);transition:transform .22s ease;box-shadow:-20px 0 50px rgba(0,0,0,.18);overflow:auto}
+.drawer.is-open{transform:translateX(0)}
+.drawer-head{display:flex;justify-content:space-between;align-items:center;padding:.8rem 1rem;border-bottom:2px solid var(--line);text-transform:uppercase;font-weight:900}
+.drawer-close{border:0;background:transparent;font-size:1.6rem;cursor:pointer}
+.drawer-body{padding:1.2rem}
+.drawer-body h3{font-family:Georgia,"Times New Roman",serif;font-size:2.2rem;letter-spacing:-.04em;line-height:.95;margin:.3rem 0 1rem}
+.fact{padding:.75rem 0;border-top:1px solid var(--line)}
+.fact small{display:block;text-transform:uppercase;color:var(--muted);letter-spacing:.06em;margin-bottom:.2rem}
+.drawer-actions{margin-top:1rem}
+.drawer-actions button{width:100%;border:2px solid var(--line);background:var(--pine);color:var(--paper);padding:.8rem;cursor:pointer;text-transform:uppercase;font-weight:900}
+.overlay{position:fixed;inset:0;background:rgba(24,23,19,.42);z-index:49;display:none}
+.overlay.is-open{display:block}
+footer{border-top:2px solid var(--line);padding:1rem;text-transform:uppercase;font-size:.72rem;color:var(--muted);display:flex;justify-content:space-between;gap:1rem}
+@media(max-width:900px){
+  .shell{border:0}
+  .centerpiece{grid-template-columns:1fr;text-align:center}
+  .direction,.direction.right{display:none}
+  .controls button{flex:1 1 33%;border-bottom:2px solid var(--line)}
+  .view-head{align-items:start;flex-direction:column}
+  .child-grid{grid-template-columns:1fr}
+  .ancestor-wrap{padding-left:.6rem;padding-right:.6rem}
+  .gen-row{justify-content:flex-start}
+  .person-card,.couple-block{width:185px}
+  .line-person{width:200px}
+}
+
+/* V3 ancestor tree: parents above children with relationship connectors */
+.ancestor-wrap {
+  padding: 1.4rem clamp(.7rem, 2vw, 1.5rem) 2.5rem;
+  overflow-x: auto;
+}
+
+#ancestorExplorer {
+  position: relative;
+  width: max-content;
+  min-width: 100%;
+  margin: 0 auto;
+  padding: .3rem 1.2rem 1rem;
+}
+
+.ancestor-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 0;
+}
+
+.ancestor-lines path {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.generation {
+  position: relative;
+  z-index: 1;
+  width: max-content;
+  min-width: 100%;
+  margin: 0 auto 2.7rem;
+}
+
+.generation:last-child {
+  margin-bottom: 0;
+}
+
+.gen-label {
+  text-align: center;
+  margin: 0 0 .6rem;
+}
+
+.gen-row {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: clamp(.7rem, 2vw, 1.4rem);
+  width: max-content;
+  min-width: 100%;
+}
+
+.couple-block {
+  position: relative;
+  width: 210px;
+  flex: 0 0 210px;
+}
+
+.person-card {
+  position: relative;
+  z-index: 2;
+}
+
+.branch-button {
+  position: relative;
+  z-index: 2;
+}
+
+@media (max-width: 900px) {
+  .ancestor-wrap {
+    padding: 1rem .55rem 2rem;
+  }
+
+  #ancestorExplorer {
+    min-width: max-content;
+    padding-left: .7rem;
+    padding-right: .7rem;
+  }
+
+  .generation {
+    min-width: max-content;
+    margin-bottom: 2.25rem;
+  }
+
+  .gen-row {
+    min-width: max-content;
+    justify-content: flex-start;
+  }
+
+  .couple-block {
+    width: 180px;
+    flex-basis: 180px;
+  }
+
+  .person-card {
+    width: 180px;
+  }
+}
+
+
+/* V5 pedigree grid: each ancestor stays above the correct child branch */
+#ancestorExplorer {
+  --card-w: 210px;
+  --slot-gap: 24px;
+}
+
+.gen-row.pedigree-row {
+  display: grid;
+  gap: 0;
+  align-items: start;
+  justify-content: stretch;
+  width: 100%;
+  min-width: 100%;
+}
+
+.pedigree-cell {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  #ancestorExplorer {
+    --card-w: 180px;
+    --slot-gap: 18px;
+  }
+
+  .gen-row.pedigree-row {
+    justify-content: stretch;
+  }
+}
+
+
+/* V6: ancestor tree lives inside its own draggable/zoomable viewport */
+.ancestor-wrap {
+  padding: 0;
+  overflow: hidden;
+  background:
+    linear-gradient(rgba(24,23,19,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(24,23,19,.035) 1px, transparent 1px),
+    var(--paper);
+  background-size: 28px 28px;
+}
+
+.ancestor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .45rem;
+  padding: .7rem;
+  border-bottom: 2px solid var(--line);
+  background: var(--paper);
+  position: relative;
+  z-index: 5;
+}
+
+.ancestor-toolbar button {
+  border: 2px solid var(--line);
+  background: transparent;
+  padding: .5rem .7rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-weight: 900;
+  font-size: .7rem;
+  letter-spacing: .04em;
+}
+
+.ancestor-toolbar button:hover,
+.ancestor-toolbar button:focus-visible {
+  background: var(--ink);
+  color: var(--paper);
+  outline: 0;
+}
+
+.zoom-readout {
+  margin-left: auto;
+  font-size: .68rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.ancestor-viewport {
+  position: relative;
+  height: min(70vh, 760px);
+  min-height: 520px;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.ancestor-viewport.is-dragging {
+  cursor: grabbing;
+}
+
+#ancestorExplorer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  margin: 0;
+  padding: 2rem 3rem 2.5rem;
+  min-width: 0;
+  width: max-content;
+  will-change: transform;
+}
+
+.ancestor-lines {
+  pointer-events: none;
+}
+
+@media (max-width: 900px) {
+  .ancestor-viewport {
+    height: 66vh;
+    min-height: 460px;
+  }
+
+  #ancestorExplorer {
+    padding: 1.4rem 2rem 2rem;
+  }
+
+  .zoom-readout {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+
+/* V7: clean pan/zoom canvas, no visible controls */
+.ancestor-toolbar,
+.zoom-readout {
+  display: none !important;
+}
+
+.ancestor-wrap {
+  padding: 0;
+  overflow: hidden;
+}
+
+.ancestor-viewport {
+  position: relative;
+  height: min(70vh, 760px);
+  min-height: 520px;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.ancestor-viewport.is-dragging {
+  cursor: grabbing;
+}
+
+/* Cards and connector SVG share the same transformed coordinate space */
+#ancestorExplorer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  margin: 0;
+  padding: 2rem 3rem 2.5rem;
+  width: max-content;
+  min-width: 0;
+  will-change: left, top;
+}
+
+#ancestorExplorer .ancestor-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 0;
+}
+
+#ancestorExplorer .ancestor-lines path {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 2;
+}
+
+@media (max-width: 900px) {
+  .ancestor-viewport {
+    height: 66vh;
+    min-height: 460px;
+  }
+
+  #ancestorExplorer {
+    padding: 1.4rem 2rem 2rem;
+  }
+}
+
+
+/* Simple tree reset control */
+.reset-view-button {
+  position: absolute;
+  top: .75rem;
+  right: .75rem;
+  z-index: 20;
+  border: 2px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  padding: .55rem .7rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-weight: 900;
+  font-size: .68rem;
+  letter-spacing: .05em;
+  box-shadow: 3px 3px 0 rgba(24,23,19,.12);
+}
+
+.reset-view-button:hover,
+.reset-view-button:focus-visible {
+  background: var(--ink);
+  color: var(--paper);
+  outline: 0;
+}
+
+@media (max-width: 900px) {
+  .reset-view-button {
+    top: .55rem;
+    right: .55rem;
+    padding: .48rem .6rem;
+    font-size: .64rem;
+  }
+}
+
+
+/* V10: draggable Buhler lineage strip */
+.line-wrap {
+  overflow-x: auto;
+  overflow-y: hidden;
+  cursor: grab;
+  user-select: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--pine) transparent;
+}
+
+.line-wrap.is-dragging {
+  cursor: grabbing;
+}
+
+.line-wrap::-webkit-scrollbar {
+  height: 10px;
+}
+
+.line-wrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.line-wrap::-webkit-scrollbar-thumb {
+  background: var(--pine);
+  border: 2px solid var(--paper);
+}
+
+.line-track {
+  width: max-content;
+  min-width: 100%;
+}
+
+/* Descendants: use the same archival pine / lichen palette */
+.family-branch {
+  background: rgba(182,59,46,.045);
+}
+
+.family-branch > h3 {
+  background: var(--pine);
+  color: var(--paper);
+}
+
+.family-branch:nth-child(even) > h3 {
+  background: var(--pine);
+  color: var(--paper);
+}
+
+.greats span {
+  background: var(--paper);
+  border-color: var(--pine);
+}
+
+
+/* V12: richer person drawer relationships */
+.relation-list {
+  display: grid;
+  gap: .4rem;
+  margin-top: .35rem;
+}
+
+.relation-person {
+  border: 1px solid var(--line);
+  background: rgba(182,59,46,.045);
+  padding: .5rem .6rem;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
+.relation-person:hover,
+.relation-person:focus-visible {
+  background: var(--ink);
+  color: var(--paper);
+  outline: 0;
+}
+
+.relation-person strong {
+  display: block;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: .96rem;
+}
+
+.relation-person span {
+  display: block;
+  margin-top: .15rem;
+  font-size: .68rem;
+  color: var(--muted);
+}
+
+.relation-person:hover span {
+  color: inherit;
+  opacity: .75;
+}
+
+
+/* V13: simple relationship text in the person drawer */
+.relation-list {
+  display: block;
+  margin-top: .2rem;
+}
+
+.relation-person {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  margin: 0 0 .18rem;
+  text-align: left;
+  cursor: default;
+  font: inherit;
+  color: inherit;
+  pointer-events: none;
+}
+
+.relation-person strong {
+  display: inline;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 400;
+}
+
+.relation-person span {
+  display: inline;
+  margin: 0 0 0 .35rem;
+  font-size: inherit;
+  color: var(--muted);
+}
+
+.relation-person:hover,
+.relation-person:focus-visible {
+  background: transparent;
+  color: inherit;
+  outline: 0;
+}
+
+
+/* Embedded inside the Henry Buhler memoir */
+body.is-embedded {
+  background: var(--paper);
+}
+
+body.is-embedded .shell {
+  width: 100%;
+  border: 0;
+  box-shadow: none;
+  min-height: 0;
+}
+
+body.is-embedded header,
+body.is-embedded .centerpiece,
+body.is-embedded footer {
+  display: none;
+}
+
+body.is-embedded .controls {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--paper);
+}
+
+body.is-embedded .view-head {
+  padding-top: 1rem;
+}
+
+body.is-embedded .ancestor-viewport {
+  height: min(72vh, 760px);
+}
+
+</style>
+</head>
+<body>
+<div class="shell">
+<header>
+  <div class="kicker"><span>Hajer family archive</span><span>Masovia · Germany · Manitoba</span></div>
+  <h1>Family<br>Tree</h1>
+  <p class="lede">An explorable family tree centered on Henry Hajer and Helen Harder. Open branches to travel backward through the family, follow the Hajer / Heier paternal line, or move forward through their descendants.</p>
+</header>
+
+<section class="centerpiece">
+  <div class="direction">← Ancestors</div>
+  <div class="root-card"><strong>Henry Hajer + Helen Harder</strong><small>1929–2022 · 1932–2022 · married 1950</small></div>
+  <div class="direction right">Descendants →</div>
+</section>
+
+<nav class="controls" aria-label="Tree views">
+  <button class="is-active" data-view="ancestors">Ancestors</button>
+  <button data-view="buhler">Hajer / Heier Line</button>
+  <button data-view="descendants">Descendants</button>
+</nav>
+
+<section class="view is-active" id="ancestors">
+  <div class="view-head"><h2>Ancestors</h2><p>Use “show parents” under any person to open an earlier branch. Click a person for dates, places and marriage information.</p></div>
+  <div class="ancestor-wrap">
+    <div class="ancestor-viewport" id="ancestorViewport">
+      <button type="button" class="reset-view-button" id="resetView">Reset View</button>
+      <div id="ancestorExplorer"></div>
+    </div>
+  </div>
+</section>
+
+<section class="view" id="buhler">
+  <div class="view-head"><h2>The Hajer / Heier Line</h2><p>The direct paternal line from Henry backward through the Hajer and earlier Heier surname spellings, tracing the family from Manitoba through Masovia and into earlier records.</p></div>
+  <div class="line-wrap"><div class="line-track" id="buhlerTrack"></div></div>
+</section>
+
+<section class="view" id="descendants">
+  <div class="view-head"><h2>Descendants</h2><p>Henry and Helen’s children and later descendants. Dates for living family members are intentionally left out.</p></div>
+  <div class="desc-wrap" id="descendantTree"></div>
+</section>
+
+<footer><span>Built from family records and GRanDMA GEDCOM exports</span><span>Private family archive</span></footer>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="drawer-head"><span>Family record</span><button class="drawer-close" id="drawerClose" aria-label="Close">×</button></div>
+  <div class="drawer-body" id="drawerBody"></div>
+</aside>
+
+<script>
+const PEOPLE = {"@I1120434@":{"id":"@I1120434@","name":"Maria Kliewer","sex":"F","birth":{"date":"8 APR 1811","year":"1811","place":"Treul, Schwetz, Prussia"},"death":{"date":"","year":"","place":""},"parents":["@I29649@","@I29650@"],"siblings":["@I1120435@","@I29640@","@I1120433@","@I1120432@","@I287034@","@I1120431@","@I1120430@","@I1120429@"],"children":[],"spouses":[]},"@I1620551@":{"id":"@I1620551@","name":"Susanna Unruh","sex":"F","birth":{"date":"24 NOV 1825","year":"1825","place":"Deutsch Czermno, Masovia, Poland"},"death":{"date":"","year":"","place":""},"parents":["@I136572@","@I136573@"],"siblings":["@I670457@","@I1620809@","@I1630776@","@I30473@","@I31777@","@I137715@","@I137716@","@I28318@","@I28372@","@I420148@","@I137718@"],"children":[],"spouses":[]},"@I34063@":{"id":"@I34063@","name":"Sarcke Schmidt","sex":"F","birth":{"date":"1695","year":"1695","place":"Prussia"},"death":{"date":"","year":"","place":""},"parents":["@I273707@","@I273708@"],"siblings":["@I43131@","@I47660@","@I100094@","@I35842@","@I103216@"],"children":[],"spouses":[]},"@I1466353@":{"id":"@I1466353@","name":"Eva Bartel","sex":"F","birth":{"date":"5 APR 1843","year":"1843","place":"Deutsch Kazun, Masovia, Poland"},"death":{"date":"","year":"","place":""},"parents":["@I28317@","@I1155889@"],"siblings":[],"children":[],"spouses":[]},"@I29182@":{"id":"@I29182@","name":"Maria Schmidt","sex":"F","birth":{"date":"Abt 1779","year":"1779","place":""},"death":{"date":"12 MAY 1837","year":"1837","place":"Deutsch Czermno, Masovia, Poland"},"parents":["@I1616431@","@I1616432@"],"siblings":[],"children":["@I1616816@","@I56904@","@I1416397@","@I1286742@","@I1618254@","@I29167@","@I278352@","@I1618119@"],"spouses":[{"id":"@I494190@","name":"Jacob Penner","marriage":{}},{"id":"@I29181@","name":"Karl Heier","marriage":{"date":"23 APR 1809","place":"Deutsch Wymyschle, Masovia, Poland"}}]},"@I140594@":{"id":"@I140594@","name":"Daniel Penner","sex":"M","birth":{"date":"20 SEP 1777","year":"1777","place":""},"death":{"date":"","year":"","place":""},"parents":["@I46633@","@I46634@"],"siblings":["@I140306@","@I140591@","@I223608@","@I134096@","@I140593@","@I140596@"],"children":[],"spouses":[]},"@I81618@":{"id":"@I81618@","name":"Cornels Wedel","sex":"M","birth":{"date":"1 MAR 1747","year":"1747","place":""},"death":{"date":"4 JAN 1798","year":"1798","place":""},"parents":["@I47671@","@I47672@"],"siblings":["@I81610@","@I36392@","@I53759@","@I81612@","@I81613@","@I81614@","@I81615@","@I81616@","@I81617@"],"children":[],"spouses":[]},"@I28325@":{"id":"@I28325@","name":"Sara Bartel","sex":"F","birth":{"date":"28 JAN 1853","year":"1853","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"28 JAN 1924","year":"1924","place":"Deutsch Wymyschle, Masovia, Poland"},"parents":["@I28317@","@I28318@"],"siblings":["@I286456@","@I28320@","@I28321@","@I28322@","@I28323@","@I28324@","@I28326@","@I28327@","@I28328@","@I28329@","@I28330@","@I28331@"],"children":[],"spouses":[]},"@I1121947@":{"id":"@I1121947@","name":"Jan Kliwer","sex":"M","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":[],"siblings":[],"children":["@I29649@","@I1121945@","@I806566@","@I1121943@","@I1121942@"],"spouses":[{"id":"@I1121946@","name":"_____ _____","marriage":{}}]},"@I140593@":{"id":"@I140593@","name":"Jakob Penner","sex":"M","birth":{"date":"11 MAR 1775","year":"1775","place":""},"death":{"date":"11 APR 1806","year":"1806","place":""},"parents":["@I46633@","@I46634@"],"siblings":["@I140306@","@I140591@","@I223608@","@I134096@","@I140594@","@I140596@"],"children":[],"spouses":[]},"@I28520@":{"id":"@I28520@","name":"Katharina Ekkert","sex":"F","birth":{"date":"25 JUN 1829","year":"1829","place":"Nieszewka, Prussia"},"death":{"date":"","year":"","place":""},"parents":["@I57794@","@I57795@"],"siblings":["@I286043@","@I1119463@","@I47777@","@I30471@"],"children":[],"spouses":[]},"@I898970@":{"id":"@I898970@","name":"_____ _____","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":"Gross Werder Area, Prussia"},"parents":[],"siblings":[],"children":["@I32192@","@I898971@","@I898972@"],"spouses":[{"id":"@I46633@","name":"Heinrich Penner","marriage":{}}]},"@I106660@":{"id":"@I106660@","name":"Peter Voht","sex":"M","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":["@I70362@","@I103216@"],"siblings":["@I106862@","@I43132@","@I70363@","@I106630@","@I106863@","@I106631@","@I106864@"],"children":[],"spouses":[]},"@I137675@":{"id":"@I137675@","name":"Ruth Hajer","sex":"F","birth":{"date":"6 MAR 1932","year":"1932","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"2 OCT 2014","year":"2014","place":""},"parents":["@I137131@","@I59303@"],"siblings":["@I137132@","@I137671@","@I137672@","@I137673@","@I137674@","@I137676@"],"children":[],"spouses":[]},"@I39690@":{"id":"@I39690@","name":"Trincke Jantz","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":["@I39121@","@I1424627@"],"siblings":["@I39691@","@I39114@","@I39692@","@I39118@"],"children":["@I48244@","@I43078@","@I42289@","@I47672@"],"spouses":[{"id":"@I48242@","name":"Cornels Richert","marriage":{"place":"Przechowka, Schwetz, Prussia"}}]},"@I1616429@":{"id":"@I1616429@","name":"Johann Heier","sex":"M","birth":{"date":"","year":"","place":""},"death":{"date":"bef 1809","year":"1809","place":""},"parents":[],"siblings":[],"children":["@I29181@"],"spouses":[{"id":"@I1616430@","name":"Christine Wilk","marriage":{}}]},"@I32193@":{"id":"@I32193@","name":"Peter Bethcke","sex":"M","birth":{"date":"","year":"","place":"Neu Dessau, Brandenburg, Prussia"},"death":{"date":"","year":"","place":""},"parents":["@I32191@","@I32192@"],"siblings":["@I32194@","@I32195@"],"children":[],"spouses":[]},"@I29183@":{"id":"@I29183@","name":"Benjamin Wedel","sex":"M","birth":{"date":"abt 1797","year":"1797","place":""},"death":{"date":"2 DEC 1830","year":"1830","place":"Deutsch Czermno, Masovia, Poland"},"parents":["@I81631@","@I32195@"],"siblings":["@I59664@","@I28570@","@I106959@","@I28487@","@I494167@"],"children":["@I1460969@","@I1619624@","@I17238@","@I135497@","@I29174@","@I1628853@"],"spouses":[{"id":"@I494287@","name":"Katharina Funk","marriage":{"date":"10 NOV 1819","place":"Deutsch Czermno, Masovia, Poland"}},{"id":"@I29184@","name":"Helena Schmidt","marriage":{}}]},"@I1189651@":{"id":"@I1189651@","name":"_____ _____","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":[],"siblings":[],"children":["@I78068@","@I78056@"],"spouses":[{"id":"@I106644@","name":"_____ Wedel","marriage":{}}]},"@I273707@":{"id":"@I273707@","name":"Ehrenst Schmidt","sex":"M","birth":{"date":"","year":"","place":"Deutsch Konopat, Schwetz, Prussia"},"death":{"date":"","year":"","place":""},"parents":["@I58473@","@I58474@"],"siblings":["@I273791@","@I58475@"],"children":["@I34063@","@I43131@","@I47660@","@I100094@","@I35842@","@I103216@"],"spouses":[{"id":"@I273708@","name":"Efcke Unrau","marriage":{"place":"Konopat, Schwetz, Prussia"}}]},"@I1616816@":{"id":"@I1616816@","name":"Helena Penner","sex":"F","birth":{"date":"abt 1801","year":"1801","place":""},"death":{"date":"3 JUL 1821","year":"1821","place":"Deutsch Czermno, Masovia, Poland"},"parents":["@I494190@","@I29182@"],"siblings":["@I56904@","@I1416397@"],"children":[],"spouses":[]},"@I32199@":{"id":"@I32199@","name":"Lehncke Bethcke","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":["@I32191@","@I32196@"],"siblings":["@I32197@","@I32198@"],"children":[],"spouses":[]},"@I1630776@":{"id":"@I1630776@","name":"David Unruh","sex":"M","birth":{"date":"abt 1813","year":"1813","place":""},"death":{"date":"2 FEB 1832","year":"1832","place":"Deutsch Czermno, Masovia, Poland"},"parents":["@I136572@","@I136573@"],"siblings":["@I670457@","@I1620809@","@I30473@","@I31777@","@I137715@","@I137716@","@I28318@","@I28372@","@I420148@","@I1620551@","@I137718@"],"children":[],"spouses":[]},"@I1120433@":{"id":"@I1120433@","name":"Peter Kliewer","sex":"M","birth":{"date":"2 FEB 1814","year":"1814","place":"Treul, Schwetz, Prussia"},"death":{"date":"25 JAN 1816","year":"1816","place":"Treul, Schwetz, Prussia"},"parents":["@I29649@","@I29650@"],"siblings":["@I1120435@","@I29640@","@I1120434@","@I1120432@","@I287034@","@I1120431@","@I1120430@","@I1120429@"],"children":[],"spouses":[]},"@I29649@":{"id":"@I29649@","name":"Johan \"Jan\" Kliewer","sex":"M","birth":{"date":"Abt 1750","year":"1750","place":""},"death":{"date":"","year":"","place":""},"parents":["@I1121947@","@I1121946@"],"siblings":["@I1121945@","@I806566@","@I1121943@","@I1121942@"],"children":["@I1120435@","@I29640@","@I1120434@","@I1120433@","@I1120432@","@I287034@","@I1120431@","@I1120430@","@I1120429@"],"spouses":[{"id":"@I29650@","name":"Katharina Kliewer","marriage":{"date":"18 JUN 1803","place":"Treul, Schwetz, Prussia"}}]},"@I37967@":{"id":"@I37967@","name":"Henry George Heiers","sex":"M","birth":{"date":"20 AUG 1893","year":"1893","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"8 DEC 1964","year":"1964","place":"Fresno, California"},"parents":["@I12483@","@I12484@"],"siblings":["@I137952@","@I37961@","@I137953@","@I29176@","@I137954@","@I12485@","@I137131@"],"children":[],"spouses":[]},"@I28322@":{"id":"@I28322@","name":"Wilhelmina Bartel","sex":"F","birth":{"date":"12 OCT 1848","year":"1848","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"15 MAR 1882","year":"1882","place":""},"parents":["@I28317@","@I28318@"],"siblings":["@I286456@","@I28320@","@I28321@","@I28323@","@I28324@","@I28325@","@I28326@","@I28327@","@I28328@","@I28329@","@I28330@","@I28331@"],"children":[],"spouses":[]},"@I31792@":{"id":"@I31792@","name":"Helene Wedel","sex":"F","birth":{"date":"26 JUL 1822","year":"1822","place":"Sady, Masovia, Poland"},"death":{"date":"22 APR 1907","year":"1907","place":"Kansas"},"parents":["@I81631@","@I1377593@"],"siblings":["@I1636854@","@I136794@","@I1622032@","@I1630633@","@I21@","@I286455@"],"children":[],"spouses":[]},"@I137715@":{"id":"@I137715@","name":"Johann Unruh","sex":"M","birth":{"date":"24 AUG 1818","year":"1818","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"14 APR 1856","year":"1856","place":"Swiniary, Masovia, Poland"},"parents":["@I136572@","@I136573@"],"siblings":["@I670457@","@I1620809@","@I1630776@","@I30473@","@I31777@","@I137716@","@I28318@","@I28372@","@I420148@","@I1620551@","@I137718@"],"children":[],"spouses":[]},"@I286456@":{"id":"@I286456@","name":"Eva Bartel","sex":"F","birth":{"date":"23 MAR 1844","year":"1844","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"9 APR 1844","year":"1844","place":"Deutsch Wymyschle, Masovia, Poland"},"parents":["@I28317@","@I28318@"],"siblings":["@I28320@","@I28321@","@I28322@","@I28323@","@I28324@","@I28325@","@I28326@","@I28327@","@I28328@","@I28329@","@I28330@","@I28331@"],"children":[],"spouses":[]},"@I1636854@":{"id":"@I1636854@","name":"Anna Maria Wedel","sex":"F","birth":{"date":"2 NOV 1809","year":"1809","place":"Sady, Masovia, Poland"},"death":{"date":"11 FEB 1810","year":"1810","place":"Sady, Masovia, Poland"},"parents":["@I81631@","@I1377593@"],"siblings":["@I136794@","@I1622032@","@I1630633@","@I31792@","@I21@","@I286455@"],"children":[],"spouses":[]},"@I1636639@":{"id":"@I1636639@","name":"Benjamin Nachtigal","sex":"M","birth":{"date":"5 JUN 1867","year":"1867","place":"Kozikow, Masovia, Poland"},"death":{"date":"","year":"","place":""},"parents":["@I30470@","@I28492@"],"siblings":["@I1636633@"],"children":[],"spouses":[]},"@I106863@":{"id":"@I106863@","name":"Hans Voht","sex":"M","birth":{"date":"","year":"","place":"Prussia"},"death":{"date":"","year":"","place":""},"parents":["@I70362@","@I103216@"],"siblings":["@I106660@","@I106862@","@I43132@","@I70363@","@I106630@","@I106631@","@I106864@"],"children":[],"spouses":[]},"@I898972@":{"id":"@I898972@","name":"Maria Penner","sex":"F","birth":{"date":"","year":"","place":"Gross Werder Area, Prussia"},"death":{"date":"","year":"","place":""},"parents":["@I46633@","@I898970@"],"siblings":["@I32192@","@I898971@"],"children":[],"spouses":[]},"@I57794@":{"id":"@I57794@","name":"Peter Eckert","sex":"M","birth":{"date":"","year":"","place":""},"death":{"date":"Bef 1835","year":"1835","place":""},"parents":[],"siblings":[],"children":["@I286043@","@I1119463@","@I47777@","@I30471@","@I28520@"],"spouses":[{"id":"@I57795@","name":"Katharina Schroeder","marriage":{}}]},"@I29173@":{"id":"@I29173@","name":"Karl Heier","sex":"M","birth":{"date":"9 JAN 1853","year":"1853","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"5 OCT 1853","year":"1853","place":"Deutsch Wymyschle, Masovia, Poland"},"parents":["@I29167@","@I29168@"],"siblings":["@I29169@","@I1629887@","@I29170@","@I29171@","@I29172@"],"children":[],"spouses":[]},"@I106645@":{"id":"@I106645@","name":"Frantz Wedel","sex":"M","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":["@I78068@","@I64195@"],"siblings":["@I78067@"],"children":[],"spouses":[]},"@I137132@":{"id":"@I137132@","name":"Willy Hajer","sex":"M","birth":{"date":"25 DEC 1919","year":"1919","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"29 JUL 1945","year":"1945","place":"Kladno, Czechoslovakia"},"parents":["@I137131@","@I59303@"],"siblings":["@I137671@","@I137672@","@I137673@","@I137674@","@I137675@","@I137676@"],"children":[],"spouses":[]},"@I29171@":{"id":"@I29171@","name":"Karl Heier","sex":"M","birth":{"date":"14 NOV 1845","year":"1845","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"YOUNG","year":"","place":"Deutsch Wymyschle, Masovia, Poland"},"parents":["@I29167@","@I29168@"],"siblings":["@I29169@","@I1629887@","@I29170@","@I29172@","@I29173@"],"children":[],"spouses":[]},"@I223608@":{"id":"@I223608@","name":"Elsa Penner","sex":"F","birth":{"date":"8 NOV 1770","year":"1770","place":""},"death":{"date":"","year":"","place":""},"parents":["@I46633@","@I46634@"],"siblings":["@I140306@","@I140591@","@I134096@","@I140593@","@I140594@","@I140596@"],"children":[],"spouses":[]},"@I29648@":{"id":"@I29648@","name":"Peter Kliewer","sex":"M","birth":{"date":"1 MAR 1858","year":"1858","place":"Juliszew, Masovia, Poland (formerly Stokow)"},"death":{"date":"19 FEB 1860","year":"1860","place":"Juliszew, Masovia, Poland (formerly Stokow)"},"parents":["@I29640@","@I29645@"],"siblings":["@I29646@","@I29647@"],"children":[],"spouses":[]},"@I28326@":{"id":"@I28326@","name":"Eva Bartel","sex":"F","birth":{"date":"15 FEB 1855","year":"1855","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"28 OCT 1855","year":"1855","place":"Deutsch Wymyschle, Masovia, Poland"},"parents":["@I28317@","@I28318@"],"siblings":["@I286456@","@I28320@","@I28321@","@I28322@","@I28323@","@I28324@","@I28325@","@I28327@","@I28328@","@I28329@","@I28330@","@I28331@"],"children":[],"spouses":[]},"@I56904@":{"id":"@I56904@","name":"Jacob Penner","sex":"M","birth":{"date":"10 JUN 1804","year":"1804","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"NOV 1881","year":"1881","place":"Mountain Lake, Minnesota"},"parents":["@I494190@","@I29182@"],"siblings":["@I1616816@","@I1416397@"],"children":[],"spouses":[]},"@I137700@":{"id":"@I137700@","name":"Cindy","sex":"F","birth":{"date":"BET 1965 AND 1970","year":"1965","place":"Winnipeg, Manitoba"},"death":{"date":"","year":"","place":""},"parents":["@I137674@","@I137691@"],"siblings":["@I137692@","@I137693@","@I137694@","@I137695@","@I137701@"],"children":[],"spouses":[]},"@I47660@":{"id":"@I47660@","name":"Efcke Schmidt","sex":"F","birth":{"date":"Abt 1700","year":"1700","place":""},"death":{"date":"","year":"","place":""},"parents":["@I273707@","@I273708@"],"siblings":["@I34063@","@I43131@","@I100094@","@I35842@","@I103216@"],"children":[],"spouses":[]},"@I43132@":{"id":"@I43132@","name":"Sarcke Voth","sex":"F","birth":{"date":"9 JUL 1704","year":"1704","place":"Schoensee, Culm, Prussia"},"death":{"date":"JAN 1760","year":"1760","place":"Prussia"},"parents":["@I70362@","@I103216@"],"siblings":["@I106660@","@I106862@","@I70363@","@I106630@","@I106863@","@I106631@","@I106864@"],"children":["@I43124@","@I81620@","@I36326@"],"spouses":[{"id":"@I43131@","name":"Ehrenst Schmidt","marriage":{"date":"24 OCT 1720","place":"Deutsch Konopat, Schwetz, Prussia"}}]},"@I32192@":{"id":"@I32192@","name":"Stiencke Penner","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"Abt 1769","year":"1769","place":"Werder, Prussia"},"parents":["@I46633@","@I898970@"],"siblings":["@I898971@","@I898972@"],"children":["@I32193@","@I32194@","@I32195@"],"spouses":[{"id":"@I32191@","name":"Adam Bethcke","marriage":{"date":"1766","place":"Neu Dessau, Brandenburg, Prussia"}}]},"@I137673@":{"id":"@I137673@","name":"Thylda Hajer","sex":"F","birth":{"date":"16 JUN 1927","year":"1927","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"7 DEC 1961","year":"1961","place":"Winnipeg, Manitoba"},"parents":["@I137131@","@I59303@"],"siblings":["@I137132@","@I137671@","@I137672@","@I137674@","@I137675@","@I137676@"],"children":[],"spouses":[]},"@I28372@":{"id":"@I28372@","name":"Eva Unruh","sex":"F","birth":{"date":"31 OCT 1823","year":"1823","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"","year":"","place":""},"parents":["@I136572@","@I136573@"],"siblings":["@I670457@","@I1620809@","@I1630776@","@I30473@","@I31777@","@I137715@","@I137716@","@I28318@","@I420148@","@I1620551@","@I137718@"],"children":[],"spouses":[]},"@I106644@":{"id":"@I106644@","name":"_____ Wedel","sex":"M","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":["@I403627@","@I1341137@"],"siblings":["@I403629@"],"children":["@I78068@","@I78056@"],"spouses":[{"id":"@I1189651@","name":"_____ _____","marriage":{}}]},"@I1636633@":{"id":"@I1636633@","name":"Julianne Nachtigal","sex":"F","birth":{"date":"18 DEC 1865","year":"1865","place":"Leonow, Masovia, Poland"},"death":{"date":"21 JAN 1867","year":"1867","place":"Leonow, Masovia, Poland"},"parents":["@I30470@","@I28492@"],"siblings":["@I1636639@"],"children":[],"spouses":[]},"@I72212@":{"id":"@I72212@","name":"Katharina Bartel","sex":"F","birth":{"date":"1814","year":"1814","place":"Deutsch Kazun, Masovia, Poland"},"death":{"date":"1905","year":"1905","place":""},"parents":["@I44463@","@I44464@"],"siblings":["@I44465@","@I87329@","@I420147@","@I72213@","@I72214@","@I28317@","@I137719@","@I285582@","@I285583@"],"children":[],"spouses":[]},"@I81625@":{"id":"@I81625@","name":"Hinrich Wedel","sex":"M","birth":{"date":"12 JAN 1725","year":"1725","place":""},"death":{"date":"6 APR 1768","year":"1768","place":"Glugowko, Schwetz, Prussia"},"parents":["@I78067@","@I1106617@"],"siblings":["@I47671@","@I81622@","@I58526@","@I32105@","@I33795@","@I106649@"],"children":[],"spouses":[]},"@I137952@":{"id":"@I137952@","name":"Albertine Heier","sex":"F","birth":{"date":"9 DEC 1880","year":"1880","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"4 JAN 1957","year":"1957","place":"Reedley, California"},"parents":["@I12483@","@I12484@"],"siblings":["@I37961@","@I137953@","@I29176@","@I137954@","@I12485@","@I37967@","@I137131@"],"children":[],"spouses":[]},"@I28487@":{"id":"@I28487@","name":"Elisabeth Wedel","sex":"F","birth":{"date":"26 APR 1804","year":"1804","place":"Deutsch Wionczemin, Masovia, Poland"},"death":{"date":"4 FEB 1849","year":"1849","place":"Leonow, Masovia, Poland"},"parents":["@I81631@","@I32195@"],"siblings":["@I59664@","@I28570@","@I29183@","@I106959@","@I494167@"],"children":[],"spouses":[]},"@I39114@":{"id":"@I39114@","name":"Cornels Jantz","sex":"M","birth":{"date":"Abt 1680","year":"1680","place":"Przechowka, Schwetz, Prussia"},"death":{"date":"7 MAY 1758","year":"1758","place":"Przechowka, Schwetz, Prussia"},"parents":["@I39121@","@I1424627@"],"siblings":["@I39691@","@I39692@","@I39118@","@I39690@"],"children":[],"spouses":[]},"@I41202@":{"id":"@I41202@","name":"Hein Richert","sex":"M","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":["@I48245@","@I48246@"],"siblings":["@I48242@"],"children":[],"spouses":[]},"@I70362@":{"id":"@I70362@","name":"Hans Voth","sex":"M","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":["@I70361@","@I403674@"],"siblings":[],"children":["@I106660@","@I106862@","@I43132@","@I70363@","@I106630@","@I106863@","@I106631@","@I106864@","@I106865@","@I106866@"],"spouses":[{"id":"@I103216@","name":"Lisa Schmidt","marriage":{}},{"id":"@I781489@","name":"Trinke Deckers","marriage":{"place":"Prussia"}}]},"@I1035798@":{"id":"@I1035798@","name":"Anna Giesbrecht","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":[],"siblings":[],"children":[],"spouses":[{"id":"@I137131@","name":"Wilhelm Hajer","marriage":{}}]},"@I1629886@":{"id":"@I1629886@","name":"Maria Heier","sex":"F","birth":{"date":"18 APR 1842","year":"1842","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"7 MAY 1842","year":"1842","place":"Deutsch Wymyschle, Masovia, Poland"},"parents":["@I1618119@","@I28318@"],"siblings":[],"children":[],"spouses":[]},"@I1120432@":{"id":"@I1120432@","name":"David Kliewer","sex":"M","birth":{"date":"3 JAN 1816","year":"1816","place":"Treul, Schwetz, Prussia"},"death":{"date":"","year":"","place":""},"parents":["@I29649@","@I29650@"],"siblings":["@I1120435@","@I29640@","@I1120434@","@I1120433@","@I287034@","@I1120431@","@I1120430@","@I1120429@"],"children":[],"spouses":[]},"@I30473@":{"id":"@I30473@","name":"Helene Unruh","sex":"F","birth":{"date":"8 OCT 1815","year":"1815","place":"Brenkenhofswalde, Brandenburg, Prussia"},"death":{"date":"","year":"","place":""},"parents":["@I136572@","@I136573@"],"siblings":["@I670457@","@I1620809@","@I1630776@","@I31777@","@I137715@","@I137716@","@I28318@","@I28372@","@I420148@","@I1620551@","@I137718@"],"children":[],"spouses":[]},"@I48242@":{"id":"@I48242@","name":"Cornels Richert","sex":"M","birth":{"date":"1670","year":"1670","place":"Danzig, Poland"},"death":{"date":"","year":"","place":""},"parents":["@I48245@","@I48246@"],"siblings":["@I41202@"],"children":["@I48244@","@I43078@","@I42289@","@I47672@"],"spouses":[{"id":"@I39690@","name":"Trincke Jantz","marriage":{"place":"Przechowka, Schwetz, Prussia"}}]},"@I29265@":{"id":"@I29265@","name":"Maria Penner","sex":"F","birth":{"date":"11 NOV 1851","year":"1851","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"14 APR 1885","year":"1885","place":""},"parents":["@I30487@","@I29174@"],"siblings":["@I30490@"],"children":[],"spouses":[]},"@I32105@":{"id":"@I32105@","name":"Buschcke Wedel","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":["@I78067@","@I1106617@"],"siblings":["@I47671@","@I81622@","@I58526@","@I33795@","@I81625@","@I106649@"],"children":[],"spouses":[]},"@I1629887@":{"id":"@I1629887@","name":"Peter Heier","sex":"M","birth":{"date":"9 OCT 1842","year":"1842","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"20 NOV 1842","year":"1842","place":"Deutsch Czermno, Masovia, Poland"},"parents":["@I29167@","@I29168@"],"siblings":["@I29169@","@I29170@","@I29171@","@I29172@","@I29173@"],"children":[],"spouses":[]},"@I420148@":{"id":"@I420148@","name":"Dorothea Unruh","sex":"F","birth":{"date":"abt 1825","year":"1825","place":""},"death":{"date":"","year":"","place":""},"parents":["@I136572@","@I136573@"],"siblings":["@I670457@","@I1620809@","@I1630776@","@I30473@","@I31777@","@I137715@","@I137716@","@I28318@","@I28372@","@I1620551@","@I137718@"],"children":[],"spouses":[]},"@I1120435@":{"id":"@I1120435@","name":"Heinrich Kliewer","sex":"M","birth":{"date":"11 MAR 1804","year":"1804","place":"Gross Lubin, Graudenz, Prussia"},"death":{"date":"11 JUL 1804","year":"1804","place":"Treul, Schwetz, Prussia"},"parents":["@I29649@","@I29650@"],"siblings":["@I29640@","@I1120434@","@I1120433@","@I1120432@","@I287034@","@I1120431@","@I1120430@","@I1120429@"],"children":[],"spouses":[]},"@I32197@":{"id":"@I32197@","name":"Hinrich Bethcke","sex":"M","birth":{"date":"","year":"","place":"Neu Dessau, Brandenburg, Prussia"},"death":{"date":"","year":"","place":""},"parents":["@I32191@","@I32196@"],"siblings":["@I32198@","@I32199@"],"children":[],"spouses":[]},"@I1121942@":{"id":"@I1121942@","name":"Hinrich Kliwer","sex":"M","birth":{"date":"Abt 1765","year":"1765","place":""},"death":{"date":"","year":"","place":""},"parents":["@I1121947@","@I1121946@"],"siblings":["@I29649@","@I1121945@","@I806566@","@I1121943@"],"children":[],"spouses":[]},"@I792933@":{"id":"@I792933@","name":"Sara Balzer","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"AFT 1848","year":"1848","place":""},"parents":[],"siblings":[],"children":["@I30470@","@I1633163@"],"spouses":[{"id":"@I792932@","name":"David Nachtigal","marriage":{}}]},"@I1620809@":{"id":"@I1620809@","name":"Susanna Unruh","sex":"F","birth":{"date":"abt 1812","year":"1812","place":""},"death":{"date":"8 JUL 1816","year":"1816","place":"Deutsch Czermno, Masovia, Poland"},"parents":["@I136572@","@I136573@"],"siblings":["@I670457@","@I1630776@","@I30473@","@I31777@","@I137715@","@I137716@","@I28318@","@I28372@","@I420148@","@I1620551@","@I137718@"],"children":[],"spouses":[]},"@I46633@":{"id":"@I46633@","name":"Heinrich Penner","sex":"M","birth":{"date":"1710","year":"1710","place":""},"death":{"date":"26 APR 1782","year":"1782","place":"Neu Dessau, Brandenburg, Prussia"},"parents":[],"siblings":[],"children":["@I32192@","@I898971@","@I898972@","@I140306@","@I140591@","@I223608@","@I134096@","@I140593@","@I140594@","@I140596@"],"spouses":[{"id":"@I898970@","name":"_____ _____","marriage":{}},{"id":"@I46634@","name":"Elizabeth Voth","marriage":{"date":"1 FEB 1767","place":"Neu Dessau, Brandenburg, Prussia"}}]},"@I1635859@":{"id":"@I1635859@","name":"Maria Nachtigal","sex":"F","birth":{"date":"16 DEC 1856","year":"1856","place":"Deutsch Zyck, Masovia, Poland"},"death":{"date":"","year":"","place":""},"parents":["@I30470@","@I30471@"],"siblings":["@I1630275@","@I1635234@","@I1635514@","@I1635994@","@I12484@"],"children":[],"spouses":[]},"@I48244@":{"id":"@I48244@","name":"Abraham Richert","sex":"M","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":["@I48242@","@I39690@"],"siblings":["@I43078@","@I42289@","@I47672@"],"children":[],"spouses":[]},"@I46634@":{"id":"@I46634@","name":"Elizabeth Voth","sex":"F","birth":{"date":"4 AUG 1745","year":"1745","place":"Prussia"},"death":{"date":"7 OCT 1807","year":"1807","place":"Brandenburg, Prussia"},"parents":[],"siblings":[],"children":["@I140306@","@I140591@","@I223608@","@I134096@","@I140593@","@I140594@","@I140596@"],"spouses":[{"id":"@I46633@","name":"Heinrich Penner","marriage":{"date":"1 FEB 1767","place":"Neu Dessau, Brandenburg, Prussia"}}]},"@I28321@":{"id":"@I28321@","name":"Heinrich Bartel","sex":"M","birth":{"date":"6 FEB 1847","year":"1847","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"27 AUG 1925","year":"1925","place":"Swiniary, Masovia, Poland"},"parents":["@I28317@","@I28318@"],"siblings":["@I286456@","@I28320@","@I28322@","@I28323@","@I28324@","@I28325@","@I28326@","@I28327@","@I28328@","@I28329@","@I28330@","@I28331@"],"children":[],"spouses":[]},"@I137695@":{"id":"@I137695@","name":"Wendy","sex":"F","birth":{"date":"BET 1960 AND 1965","year":"1960","place":"Winnipeg, Manitoba"},"death":{"date":"","year":"","place":""},"parents":["@I137674@","@I137691@"],"siblings":["@I137692@","@I137693@","@I137694@","@I137700@","@I137701@"],"children":[],"spouses":[]},"@I1119463@":{"id":"@I1119463@","name":"Anna Ekkert","sex":"F","birth":{"date":"27 OCT 1817","year":"1817","place":"Klein Nessau, Thorn, Prussia"},"death":{"date":"","year":"","place":""},"parents":["@I57794@","@I57795@"],"siblings":["@I286043@","@I47777@","@I30471@","@I28520@"],"children":[],"spouses":[]},"@I70361@":{"id":"@I70361@","name":"_____ Voth","sex":"M","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":[],"siblings":[],"children":["@I70362@"],"spouses":[{"id":"@I403674@","name":"_____ _____","marriage":{}}]},"@I64195@":{"id":"@I64195@","name":"_____ _____","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":[],"siblings":[],"children":["@I78067@","@I106645@"],"spouses":[{"id":"@I78068@","name":"Frantz Wedel","marriage":{}}]},"@I494167@":{"id":"@I494167@","name":"Jacob Wedel","sex":"M","birth":{"date":"15 JUL 1806","year":"1806","place":"Sady, Masovia, Poland"},"death":{"date":"21 MAY 1860","year":"1860","place":"Deutsch Czermno, Masovia, Poland"},"parents":["@I81631@","@I32195@"],"siblings":["@I59664@","@I28570@","@I29183@","@I106959@","@I28487@"],"children":[],"spouses":[]},"@I140591@":{"id":"@I140591@","name":"Elisabeth Penner","sex":"F","birth":{"date":"10 JUN 1769","year":"1769","place":"Brenkenhofswalde, Brandenburg, Prussia"},"death":{"date":"","year":"","place":""},"parents":["@I46633@","@I46634@"],"siblings":["@I140306@","@I223608@","@I134096@","@I140593@","@I140594@","@I140596@"],"children":[],"spouses":[]},"@I140596@":{"id":"@I140596@","name":"Maria Penner","sex":"F","birth":{"date":"12 DEC 1780","year":"1780","place":""},"death":{"date":"","year":"","place":"Neu Dessau, Brandenburg, Prussia"},"parents":["@I46633@","@I46634@"],"siblings":["@I140306@","@I140591@","@I223608@","@I134096@","@I140593@","@I140594@"],"children":[],"spouses":[]},"@I806566@":{"id":"@I806566@","name":"Gert Kliewer","sex":"M","birth":{"date":"Abt 1759","year":"1759","place":""},"death":{"date":"7 JUN 1795","year":"1795","place":"Montau, Schwetz, Prussia"},"parents":["@I1121947@","@I1121946@"],"siblings":["@I29649@","@I1121945@","@I1121943@","@I1121942@"],"children":[],"spouses":[]},"@I1620815@":{"id":"@I1620815@","name":"_____ _____","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"bef 1809","year":"1809","place":""},"parents":[],"siblings":[],"children":["@I1620814@"],"spouses":[{"id":"@I29181@","name":"Karl Heier","marriage":{}}]},"@I81620@":{"id":"@I81620@","name":"Trincke Schmidt","sex":"F","birth":{"date":"7 JUL 1743","year":"1743","place":"Deutsch Konopat, Schwetz, Prussia"},"death":{"date":"22 APR 1808","year":"1808","place":""},"parents":["@I43131@","@I43132@"],"siblings":["@I43124@","@I36326@"],"children":["@I47896@","@I81631@","@I106677@"],"spouses":[{"id":"@I81617@","name":"Benjamin Wedel","marriage":{"date":"4 NOV 1760","place":"Przechowka, Schwetz, Prussia"}}]},"@I1620814@":{"id":"@I1620814@","name":"Benjamin Heier","sex":"M","birth":{"date":"abt 1803","year":"1803","place":""},"death":{"date":"22 NOV 1816","year":"1816","place":"Deutsch Czermno, Masovia, Poland"},"parents":["@I29181@","@I1620815@"],"siblings":[],"children":[],"spouses":[]},"@I1121946@":{"id":"@I1121946@","name":"_____ _____","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":[],"siblings":[],"children":["@I29649@","@I1121945@","@I806566@","@I1121943@","@I1121942@"],"spouses":[{"id":"@I1121947@","name":"Jan Kliwer","marriage":{}}]},"@I32196@":{"id":"@I32196@","name":"Efcke Isaacs","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":[],"siblings":[],"children":["@I32197@","@I32198@","@I32199@"],"spouses":[{"id":"@I32191@","name":"Adam Bethcke","marriage":{"date":"Abt 1770","place":"Neu Dessau, Brandenburg, Prussia"}}]},"@I137701@":{"id":"@I137701@","name":"Jennifer","sex":"F","birth":{"date":"BET 1970 AND 1975","year":"1970","place":"Winnipeg, Manitoba"},"death":{"date":"","year":"","place":""},"parents":["@I137674@","@I137691@"],"siblings":["@I137692@","@I137693@","@I137694@","@I137695@","@I137700@"],"children":[],"spouses":[]},"@I47672@":{"id":"@I47672@","name":"Maricke Richert","sex":"F","birth":{"date":"30 NOV 1703","year":"1703","place":"Przechowka, Schwetz, Prussia"},"death":{"date":"1 JAN 1780","year":"1780","place":""},"parents":["@I48242@","@I39690@"],"siblings":["@I48244@","@I43078@","@I42289@"],"children":["@I81610@","@I36392@","@I53759@","@I81612@","@I81613@","@I81614@","@I81615@","@I81616@","@I81617@","@I81618@"],"spouses":[{"id":"@I47671@","name":"Peter Wedel","marriage":{"date":"3 MAY 1720","place":"Przechowka, Schwetz, Prussia"}}]},"@I106959@":{"id":"@I106959@","name":"Heinrich Wedel","sex":"M","birth":{"date":"21 OCT 1800","year":"1800","place":"Deutsch Wionczemin, Masovia, Poland"},"death":{"date":"","year":"","place":""},"parents":["@I81631@","@I32195@"],"siblings":["@I59664@","@I28570@","@I29183@","@I28487@","@I494167@"],"children":[],"spouses":[]},"@I81614@":{"id":"@I81614@","name":"Trincke Wedel","sex":"F","birth":{"date":"27 APR 1732","year":"1732","place":""},"death":{"date":"","year":"","place":""},"parents":["@I47671@","@I47672@"],"siblings":["@I81610@","@I36392@","@I53759@","@I81612@","@I81613@","@I81615@","@I81616@","@I81617@","@I81618@"],"children":[],"spouses":[]},"@I137674@":{"id":"@I137674@","name":"Henry Hajer","sex":"M","birth":{"date":"30 JAN 1929","year":"1929","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"10 APR 2022","year":"2022","place":"Winnipeg, Manitoba"},"parents":["@I137131@","@I59303@"],"siblings":["@I137132@","@I137671@","@I137672@","@I137673@","@I137675@","@I137676@"],"children":["@I137692@","@I137693@","@I137694@","@I137695@","@I137700@","@I137701@"],"spouses":[{"id":"@I137691@","name":"Helen Harder","marriage":{"date":"16 SEP 1950","place":"Winnipeg, Manitoba"}}]},"@I1121945@":{"id":"@I1121945@","name":"Peter Kliwer","sex":"M","birth":{"date":"Abt 1753","year":"1753","place":""},"death":{"date":"","year":"","place":""},"parents":["@I1121947@","@I1121946@"],"siblings":["@I29649@","@I806566@","@I1121943@","@I1121942@"],"children":[],"spouses":[]},"@I72214@":{"id":"@I72214@","name":"Gerhard Bartel","sex":"M","birth":{"date":"abt 1818","year":"1818","place":""},"death":{"date":"","year":"","place":""},"parents":["@I44463@","@I44464@"],"siblings":["@I44465@","@I87329@","@I420147@","@I72212@","@I72213@","@I28317@","@I137719@","@I285582@","@I285583@"],"children":[],"spouses":[]},"@I1120430@":{"id":"@I1120430@","name":"Franz Kliewer","sex":"M","birth":{"date":"30 MAY 1820","year":"1820","place":"Treul, Schwetz, Prussia"},"death":{"date":"13 DEC 1824","year":"1824","place":"Treul, Schwetz, Prussia"},"parents":["@I29649@","@I29650@"],"siblings":["@I1120435@","@I29640@","@I1120434@","@I1120433@","@I1120432@","@I287034@","@I1120431@","@I1120429@"],"children":[],"spouses":[]},"@I44463@":{"id":"@I44463@","name":"Andreas Bartel","sex":"M","birth":{"date":"abt 1783","year":"1783","place":""},"death":{"date":"5 JAN 1837","year":"1837","place":"Deutsch Kazun, Masovia, Poland"},"parents":[],"siblings":[],"children":["@I44465@","@I87329@","@I420147@","@I72212@","@I72213@","@I72214@","@I28317@","@I137719@","@I285582@","@I285583@"],"spouses":[{"id":"@I44464@","name":"Sara Ewert","marriage":{"date":"1808","place":"Deutsch Kazun, Masovia, Poland"}}]},"@I100094@":{"id":"@I100094@","name":"Heinrich Schmidt","sex":"M","birth":{"date":"14 AUG 1701","year":"1701","place":"Deutsch Konopat, Schwetz, Prussia"},"death":{"date":"","year":"","place":""},"parents":["@I273707@","@I273708@"],"siblings":["@I34063@","@I43131@","@I47660@","@I35842@","@I103216@"],"children":[],"spouses":[]},"@I137671@":{"id":"@I137671@","name":"Bertha Hajer","sex":"F","birth":{"date":"8 FEB 1922","year":"1922","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"4 JAN 1986","year":"1986","place":"Winnipeg, Manitoba"},"parents":["@I137131@","@I59303@"],"siblings":["@I137132@","@I137672@","@I137673@","@I137674@","@I137675@","@I137676@"],"children":[],"spouses":[]},"@I72213@":{"id":"@I72213@","name":"Anna Bartel","sex":"F","birth":{"date":"1817","year":"1817","place":"Deutsch Kazun, Masovia, Poland"},"death":{"date":"","year":"","place":""},"parents":["@I44463@","@I44464@"],"siblings":["@I44465@","@I87329@","@I420147@","@I72212@","@I72214@","@I28317@","@I137719@","@I285582@","@I285583@"],"children":[],"spouses":[]},"@I670457@":{"id":"@I670457@","name":"Benjamin Unruh","sex":"M","birth":{"date":"31 JAN 1808","year":"1808","place":"Brenkenhofswalde, Brandenburg, Prussia"},"death":{"date":"1 JAN 1856","year":"1856","place":"Deutsch Zyck, Masovia, Poland"},"parents":["@I136572@","@I136573@"],"siblings":["@I1620809@","@I1630776@","@I30473@","@I31777@","@I137715@","@I137716@","@I28318@","@I28372@","@I420148@","@I1620551@","@I137718@"],"children":[],"spouses":[]},"@I1635234@":{"id":"@I1635234@","name":"David Nachtigal","sex":"M","birth":{"date":"19 JAN 1852","year":"1852","place":"Deutsch Zyck, Masovia, Poland"},"death":{"date":"11 MAR 1853","year":"1853","place":"Deutsch Zyck, Masovia, Poland"},"parents":["@I30470@","@I30471@"],"siblings":["@I1630275@","@I1635514@","@I1635859@","@I1635994@","@I12484@"],"children":[],"spouses":[]},"@I28320@":{"id":"@I28320@","name":"Peter Bartel","sex":"M","birth":{"date":"21 MAY 1845","year":"1845","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"1 JUL 1930","year":"1930","place":"Deutsch Zyck, Masovia, Poland"},"parents":["@I28317@","@I28318@"],"siblings":["@I286456@","@I28321@","@I28322@","@I28323@","@I28324@","@I28325@","@I28326@","@I28327@","@I28328@","@I28329@","@I28330@","@I28331@"],"children":[],"spouses":[]},"@I58526@":{"id":"@I58526@","name":"Sarcke Wedel","sex":"F","birth":{"date":"27 MAR 1713","year":"1713","place":"Deutsch Konopat, Schwetz, Prussia"},"death":{"date":"1740","year":"1740","place":"Deutsch Konopat, Schwetz, Prussia"},"parents":["@I78067@","@I1106617@"],"siblings":["@I47671@","@I81622@","@I32105@","@I33795@","@I81625@","@I106649@"],"children":[],"spouses":[]},"@I58474@":{"id":"@I58474@","name":"_____ _____","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":[],"siblings":[],"children":["@I273791@","@I273707@","@I58475@"],"spouses":[{"id":"@I58473@","name":"_____ Schmidt","marriage":{"date":"Abt 1669","place":"Deutsch Konopat, Schwetz, Prussia"}}]},"@I29167@":{"id":"@I29167@","name":"Karl Heier","sex":"M","birth":{"date":"25 OCT 1812","year":"1812","place":"Deutsch Czermno, Masovia, Poland"},"death":{"date":"18 FEB 1885","year":"1885","place":"Deutsch Wymyschle, Masovia, Poland"},"parents":["@I29181@","@I29182@"],"siblings":["@I1286742@","@I1618254@","@I278352@","@I1618119@"],"children":["@I29169@","@I1629887@","@I29170@","@I29171@","@I29172@","@I29173@","@I29175@","@I12483@","@I29177@","@I29178@","@I29179@","@I29180@"],"spouses":[{"id":"@I1621755@","name":"Maria Elisabeth Funk","marriage":{"date":"2 JAN 1837"}},{"id":"@I29168@","name":"Helena Schmidt","marriage":{"date":"17 NOV 1839"}},{"id":"@I29174@","name":"Susanna Wedel","marriage":{"date":"6 MAY 1853"}}]},"@I81615@":{"id":"@I81615@","name":"Benjamin Wedel","sex":"M","birth":{"date":"11 FEB 1735","year":"1735","place":""},"death":{"date":"1735","year":"1735","place":""},"parents":["@I47671@","@I47672@"],"siblings":["@I81610@","@I36392@","@I53759@","@I81612@","@I81613@","@I81614@","@I81616@","@I81617@","@I81618@"],"children":[],"spouses":[]},"@I136572@":{"id":"@I136572@","name":"David Unruh","sex":"M","birth":{"date":"Abt 1780","year":"1780","place":"Brenkenhofswalde, Brandenburg, Prussia"},"death":{"date":"23 JUN 1841","year":"1841","place":"Deutsch Czermno, Masovia, Poland"},"parents":[],"siblings":[],"children":["@I670457@","@I1620809@","@I1630776@","@I30473@","@I31777@","@I137715@","@I137716@","@I28318@","@I28372@","@I420148@","@I1620551@","@I137718@"],"spouses":[{"id":"@I136573@","name":"Rosine Kraft","marriage":{"date":"5 MAY 1815","place":"Alt Bielitz, Amt Driesen, Brandenburg, Germany"}}]},"@I1622032@":{"id":"@I1622032@","name":"Anna Maria Wedel","sex":"F","birth":{"date":"abt 1814","year":"1814","place":""},"death":{"date":"19 APR 1833","year":"1833","place":"Deutsch Czermno, Masovia, Poland"},"parents":["@I81631@","@I1377593@"],"siblings":["@I1636854@","@I136794@","@I1630633@","@I31792@","@I21@","@I286455@"],"children":[],"spouses":[]},"@I1635994@":{"id":"@I1635994@","name":"Wilhelmine Nachtigal","sex":"F","birth":{"date":"6 JAN 1858","year":"1858","place":"Deutsch Zyck, Masovia, Poland"},"death":{"date":"24 JAN 1858","year":"1858","place":"Deutsch Zyck, Masovia, Poland"},"parents":["@I30470@","@I30471@"],"siblings":["@I1630275@","@I1635234@","@I1635514@","@I1635859@","@I12484@"],"children":[],"spouses":[]},"@I32198@":{"id":"@I32198@","name":"Benjamin Bethcke","sex":"M","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":["@I32191@","@I32196@"],"siblings":["@I32197@","@I32199@"],"children":[],"spouses":[]},"@I106631@":{"id":"@I106631@","name":"Hein Voht","sex":"M","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":["@I70362@","@I103216@"],"siblings":["@I106660@","@I106862@","@I43132@","@I70363@","@I106630@","@I106863@","@I106864@"],"children":[],"spouses":[]},"@I28327@":{"id":"@I28327@","name":"Eva Bartel","sex":"F","birth":{"date":"9 JAN 1857","year":"1857","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"16 FEB 1934","year":"1934","place":"Deutsch Wymyschle, Masovia, Poland"},"parents":["@I28317@","@I28318@"],"siblings":["@I286456@","@I28320@","@I28321@","@I28322@","@I28323@","@I28324@","@I28325@","@I28326@","@I28328@","@I28329@","@I28330@","@I28331@"],"children":["@I29857@","@I136062@","@I29859@","@I29860@","@I29861@","@I59303@"],"spouses":[{"id":"@I29647@","name":"Heinrich Kliewer","marriage":{"date":"10 NOV 1875","place":"Deutsch Wymyschle, Masovia, Poland"}}]},"@I29651@":{"id":"@I29651@","name":"Heinrich Schroeder","sex":"M","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":[],"siblings":[],"children":["@I29645@"],"spouses":[{"id":"@I29652@","name":"_____ _____","marriage":{}}]},"@I28324@":{"id":"@I28324@","name":"David Bartel","sex":"M","birth":{"date":"7 SEP 1851","year":"1851","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"OCT 1938","year":"1938","place":"Rosenfeld, Fernheim, Paraguay"},"parents":["@I28317@","@I28318@"],"siblings":["@I286456@","@I28320@","@I28321@","@I28322@","@I28323@","@I28325@","@I28326@","@I28327@","@I28328@","@I28329@","@I28330@","@I28331@"],"children":[],"spouses":[]},"@I792932@":{"id":"@I792932@","name":"David Nachtigal","sex":"M","birth":{"date":"","year":"","place":""},"death":{"date":"bef 1848","year":"1848","place":""},"parents":[],"siblings":[],"children":["@I30470@","@I1633163@"],"spouses":[{"id":"@I792933@","name":"Sara Balzer","marriage":{}}]},"@I103464@":{"id":"@I103464@","name":"Maria Tesmer","sex":"F","birth":{"date":"29 JAN 1794","year":"1794","place":"Deutsch Konopat, Schwetz, Prussia"},"death":{"date":"27 FEB 1853","year":"1853","place":"Kozikow, Masovia, Poland"},"parents":[],"siblings":[],"children":[],"spouses":[{"id":"@I29640@","name":"Johann Kliewer","marriage":{"date":"6 OCT 1836"}}]},"@I81622@":{"id":"@I81622@","name":"Benjamin Wedel","sex":"M","birth":{"date":"abt 1703","year":"1703","place":""},"death":{"date":"NOV 1759","year":"1759","place":"Przechowka, Schwetz, Prussia"},"parents":["@I78067@","@I1106617@"],"siblings":["@I47671@","@I58526@","@I32105@","@I33795@","@I81625@","@I106649@"],"children":[],"spouses":[]},"@I48245@":{"id":"@I48245@","name":"_____ Richert","sex":"M","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":[],"siblings":[],"children":["@I48242@","@I41202@"],"spouses":[{"id":"@I48246@","name":"_____ _____","marriage":{}}]},"@I43078@":{"id":"@I43078@","name":"Trincke Richert","sex":"F","birth":{"date":"Abt 1695","year":"1695","place":"Przechowka, Schwetz, Prussia"},"death":{"date":"","year":"","place":"Przechowka, Schwetz, Prussia"},"parents":["@I48242@","@I39690@"],"siblings":["@I48244@","@I42289@","@I47672@"],"children":[],"spouses":[]},"@I39692@":{"id":"@I39692@","name":"Sarcke Jantz","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":["@I39121@","@I1424627@"],"siblings":["@I39691@","@I39114@","@I39118@","@I39690@"],"children":[],"spouses":[]},"@I30487@":{"id":"@I30487@","name":"Peter Penner","sex":"M","birth":{"date":"8 SEP 1828","year":"1828","place":"Deutsch Wionczemin, Masovia, Poland"},"death":{"date":"6 JUN 1852","year":"1852","place":"Deutsch Czermno, Masovia, Poland"},"parents":[],"siblings":[],"children":["@I30490@","@I29265@"],"spouses":[{"id":"@I29174@","name":"Susanna Wedel","marriage":{"date":"15 AUG 1849"}}]},"@I1155889@":{"id":"@I1155889@","name":"Eva Nickel","sex":"F","birth":{"date":"Abt 1825","year":"1825","place":""},"death":{"date":"","year":"","place":""},"parents":[],"siblings":[],"children":["@I1466353@"],"spouses":[{"id":"@I28317@","name":"Andreas Bartel","marriage":{}}]},"@I286455@":{"id":"@I286455@","name":"Julianna Wedel","sex":"F","birth":{"date":"15 JAN 1829","year":"1829","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"","year":"","place":""},"parents":["@I81631@","@I1377593@"],"siblings":["@I1636854@","@I136794@","@I1622032@","@I1630633@","@I31792@","@I21@"],"children":[],"spouses":[]},"@I29177@":{"id":"@I29177@","name":"Susanna Heier","sex":"F","birth":{"date":"25 DEC 1859","year":"1859","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"26 APR 1937","year":"1937","place":"Deutsch Wymyschle, Masovia, Poland"},"parents":["@I29167@","@I29174@"],"siblings":["@I29175@","@I12483@","@I29178@","@I29179@","@I29180@"],"children":[],"spouses":[]},"@I29645@":{"id":"@I29645@","name":"Eva Schroeder","sex":"F","birth":{"date":"1 NOV 1822","year":"1822","place":"Czosnower Kaempe, Prussia"},"death":{"date":"6 JAN 1904","year":"1904","place":""},"parents":["@I29651@","@I29652@"],"siblings":[],"children":["@I29646@","@I29647@","@I29648@"],"spouses":[{"id":"@I29640@","name":"Johann Kliewer","marriage":{"date":"13 AUG 1853"}}]},"@I78067@":{"id":"@I78067@","name":"Benjamin Wedel","sex":"M","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":["@I78068@","@I64195@"],"siblings":["@I106645@"],"children":["@I47671@","@I81622@","@I58526@","@I32105@","@I33795@","@I81625@","@I106649@"],"spouses":[{"id":"@I1106617@","name":"_____ _____","marriage":{}}]},"@I58475@":{"id":"@I58475@","name":"Peter Schmidt","sex":"M","birth":{"date":"","year":"","place":"Klein Konopat, Schwetz, Prussia"},"death":{"date":"","year":"","place":""},"parents":["@I58473@","@I58474@"],"siblings":["@I273791@","@I273707@"],"children":[],"spouses":[]},"@I33795@":{"id":"@I33795@","name":"Tobias Wedel","sex":"M","birth":{"date":"1 JAN 1722","year":"1722","place":""},"death":{"date":"NOV 1773","year":"1773","place":"Przechowka, Schwetz, Prussia"},"parents":["@I78067@","@I1106617@"],"siblings":["@I47671@","@I81622@","@I58526@","@I32105@","@I81625@","@I106649@"],"children":[],"spouses":[]},"@I28323@":{"id":"@I28323@","name":"Andreas Bartel","sex":"M","birth":{"date":"13 MAY 1850","year":"1850","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"DEC 1917","year":"1917","place":"Szczawin, Masovia, Poland"},"parents":["@I28317@","@I28318@"],"siblings":["@I286456@","@I28320@","@I28321@","@I28322@","@I28324@","@I28325@","@I28326@","@I28327@","@I28328@","@I28329@","@I28330@","@I28331@"],"children":[],"spouses":[]},"@I278352@":{"id":"@I278352@","name":"Maria Heier","sex":"F","birth":{"date":"24 JAN 1816","year":"1816","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"","year":"","place":""},"parents":["@I29181@","@I29182@"],"siblings":["@I1286742@","@I1618254@","@I29167@","@I1618119@"],"children":[],"spouses":[]},"@I106866@":{"id":"@I106866@","name":"Ancke Vohten","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":["@I70362@","@I781489@"],"siblings":["@I106865@"],"children":[],"spouses":[]},"@I53759@":{"id":"@I53759@","name":"Ancke Wedel","sex":"F","birth":{"date":"3 MAR 1727","year":"1727","place":""},"death":{"date":"","year":"","place":""},"parents":["@I47671@","@I47672@"],"siblings":["@I81610@","@I36392@","@I81612@","@I81613@","@I81614@","@I81615@","@I81616@","@I81617@","@I81618@"],"children":[],"spouses":[]},"@I1618119@":{"id":"@I1618119@","name":"Heinrich Heier","sex":"M","birth":{"date":"7 MAY 1820","year":"1820","place":"Deutsch Czermno, Masovia, Poland"},"death":{"date":"23 AUG 1842","year":"1842","place":"Deutsch Czermno, Masovia, Poland"},"parents":["@I29181@","@I29182@"],"siblings":["@I1286742@","@I1618254@","@I29167@","@I278352@"],"children":["@I1629886@"],"spouses":[{"id":"@I28318@","name":"Luise Unruh","marriage":{"date":"14 MAY 1841"}}]},"@I1616431@":{"id":"@I1616431@","name":"Christoph Schmidt","sex":"M","birth":{"date":"","year":"","place":""},"death":{"date":"bef 1809","year":"1809","place":""},"parents":[],"siblings":[],"children":["@I29182@"],"spouses":[{"id":"@I1616432@","name":"Anna Richert","marriage":{}}]},"@I30470@":{"id":"@I30470@","name":"David Nachtigall","sex":"M","birth":{"date":"11 DEC 1819","year":"1819","place":"Treul, Schwetz, Prussia"},"death":{"date":"","year":"","place":""},"parents":["@I792932@","@I792933@"],"siblings":["@I1633163@"],"children":["@I1630275@","@I1635234@","@I1635514@","@I1635859@","@I1635994@","@I12484@","@I1636633@","@I1636639@"],"spouses":[{"id":"@I30471@","name":"Maria Ekkert","marriage":{"date":"19 NOV 1848"}},{"id":"@I28492@","name":"Elisabeth Foth","marriage":{"date":"7 FEB 1863","place":"Deutsch Zyck, Masovia, Poland"}}]},"@I29179@":{"id":"@I29179@","name":"Franz Heier","sex":"M","birth":{"date":"4 SEP 1862","year":"1862","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"16 JUL 1955","year":"1955","place":"Steinbach, Manitoba"},"parents":["@I29167@","@I29174@"],"siblings":["@I29175@","@I12483@","@I29177@","@I29178@","@I29180@"],"children":[],"spouses":[]},"@I81631@":{"id":"@I81631@","name":"Peter Wedel","sex":"M","birth":{"date":"4 FEB 1769","year":"1769","place":""},"death":{"date":"1 FEB 1848","year":"1848","place":"Deutsch Czermno, Masovia, Poland"},"parents":["@I81617@","@I81620@"],"siblings":["@I47896@","@I106677@"],"children":["@I59664@","@I28570@","@I29183@","@I106959@","@I28487@","@I494167@","@I1636854@","@I136794@","@I1622032@","@I1630633@","@I31792@","@I21@","@I286455@"],"spouses":[{"id":"@I32195@","name":"Maricke Bethcke","marriage":{"date":"1790"}},{"id":"@I1377593@","name":"Maria Wedel","marriage":{}}]},"@I12485@":{"id":"@I12485@","name":"Andreas Heier","sex":"M","birth":{"date":"11 FEB 1891","year":"1891","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"4 AUG 1985","year":"1985","place":"Bakersfield, California"},"parents":["@I12483@","@I12484@"],"siblings":["@I137952@","@I37961@","@I137953@","@I29176@","@I137954@","@I37967@","@I137131@"],"children":[],"spouses":[]},"@I1621755@":{"id":"@I1621755@","name":"Maria Elisabeth Funk","sex":"F","birth":{"date":"12 MAR 1812","year":"1812","place":"Sady, Masovia, Poland"},"death":{"date":"25 MAY 1837","year":"1837","place":"Sady, Masovia, Poland"},"parents":[],"siblings":[],"children":[],"spouses":[{"id":"@I29167@","name":"Karl Heier","marriage":{"date":"2 JAN 1837"}}]},"@I136062@":{"id":"@I136062@","name":"Andreas Kliewer","sex":"M","birth":{"date":"22 MAY 1882","year":"1882","place":"Juliszew, Masovia, Poland (formerly Stokow)"},"death":{"date":"28 APR 1974","year":"1974","place":"Vancouver, British Columbia"},"parents":["@I29647@","@I28327@"],"siblings":["@I29857@","@I29859@","@I29860@","@I29861@","@I59303@"],"children":[],"spouses":[]},"@I17238@":{"id":"@I17238@","name":"Helena Wedel","sex":"F","birth":{"date":"17 MAR 1824","year":"1824","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"14 OCT 1872","year":"1872","place":""},"parents":["@I29183@","@I29184@"],"siblings":["@I1619624@","@I135497@","@I29174@","@I1628853@"],"children":[],"spouses":[]},"@I31990@":{"id":"@I31990@","name":"Trincke Becker","sex":"F","birth":{"date":"JUN 1744","year":"1744","place":"Deutsch Konopat, Schwetz, Prussia"},"death":{"date":"","year":"","place":""},"parents":[],"siblings":[],"children":[],"spouses":[{"id":"@I43131@","name":"Ehrenst Schmidt","marriage":{"date":"17 AUG 1760","place":"Deutsch Konopat, Schwetz, Prussia"}}]},"@I30490@":{"id":"@I30490@","name":"Helene Penner","sex":"F","birth":{"date":"27 MAR 1850","year":"1850","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"2 FEB 1888","year":"1888","place":""},"parents":["@I30487@","@I29174@"],"siblings":["@I29265@"],"children":[],"spouses":[]},"@I28328@":{"id":"@I28328@","name":"Anna Bartel","sex":"F","birth":{"date":"28 APR 1859","year":"1859","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"9 APR 1914","year":"1914","place":"Deutsch Wymyschle, Masovia, Poland"},"parents":["@I28317@","@I28318@"],"siblings":["@I286456@","@I28320@","@I28321@","@I28322@","@I28323@","@I28324@","@I28325@","@I28326@","@I28327@","@I28329@","@I28330@","@I28331@"],"children":[],"spouses":[]},"@I81613@":{"id":"@I81613@","name":"Trincke Wedel","sex":"F","birth":{"date":"16 MAR 1730","year":"1730","place":""},"death":{"date":"","year":"","place":""},"parents":["@I47671@","@I47672@"],"siblings":["@I81610@","@I36392@","@I53759@","@I81612@","@I81614@","@I81615@","@I81616@","@I81617@","@I81618@"],"children":[],"spouses":[]},"@I32194@":{"id":"@I32194@","name":"Hans Bethcke","sex":"M","birth":{"date":"","year":"","place":"Neu Dessau, Brandenburg, Prussia"},"death":{"date":"","year":"","place":""},"parents":["@I32191@","@I32192@"],"siblings":["@I32193@","@I32195@"],"children":[],"spouses":[]},"@I403629@":{"id":"@I403629@","name":"_____ Wedel","sex":"M","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":["@I403627@","@I1341137@"],"siblings":["@I106644@"],"children":[],"spouses":[]},"@I137672@":{"id":"@I137672@","name":"Hilla Hajer","sex":"F","birth":{"date":"2 AUG 1923","year":"1923","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"18 JUN 2012","year":"2012","place":"Newton, Manitoba"},"parents":["@I137131@","@I59303@"],"siblings":["@I137132@","@I137671@","@I137673@","@I137674@","@I137675@","@I137676@"],"children":[],"spouses":[]},"@I42289@":{"id":"@I42289@","name":"Ancke Richerts","sex":"F","birth":{"date":"Abt 1696","year":"1696","place":""},"death":{"date":"","year":"","place":""},"parents":["@I48242@","@I39690@"],"siblings":["@I48244@","@I43078@","@I47672@"],"children":[],"spouses":[]},"@I137953@":{"id":"@I137953@","name":"Anna Heier","sex":"F","birth":{"date":"6 JUN 1885","year":"1885","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"17 JAN 1958","year":"1958","place":"Hillsboro, Kansas"},"parents":["@I12483@","@I12484@"],"siblings":["@I137952@","@I37961@","@I29176@","@I137954@","@I12485@","@I37967@","@I137131@"],"children":[],"spouses":[]},"@I140306@":{"id":"@I140306@","name":"Peter Penner","sex":"M","birth":{"date":"20 MAY 1768","year":"1768","place":""},"death":{"date":"Bef 1834","year":"1834","place":""},"parents":["@I46633@","@I46634@"],"siblings":["@I140591@","@I223608@","@I134096@","@I140593@","@I140594@","@I140596@"],"children":[],"spouses":[]},"@I403627@":{"id":"@I403627@","name":"_____ Wedel","sex":"M","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":[],"siblings":[],"children":["@I106644@","@I403629@"],"spouses":[{"id":"@I1341137@","name":"_____ _____","marriage":{}}]},"@I285582@":{"id":"@I285582@","name":"Peter Bartel","sex":"M","birth":{"date":"1825","year":"1825","place":"Deutsch Kazun, Masovia, Poland"},"death":{"date":"1899","year":"1899","place":""},"parents":["@I44463@","@I44464@"],"siblings":["@I44465@","@I87329@","@I420147@","@I72212@","@I72213@","@I72214@","@I28317@","@I137719@","@I285583@"],"children":[],"spouses":[]},"@I137716@":{"id":"@I137716@","name":"Heinrich Unruh","sex":"M","birth":{"date":"24 MAR 1820","year":"1820","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"10 OCT 1877","year":"1877","place":""},"parents":["@I136572@","@I136573@"],"siblings":["@I670457@","@I1620809@","@I1630776@","@I30473@","@I31777@","@I137715@","@I28318@","@I28372@","@I420148@","@I1620551@","@I137718@"],"children":[],"spouses":[]},"@I781489@":{"id":"@I781489@","name":"Trinke Deckers","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":[],"siblings":[],"children":["@I106865@","@I106866@"],"spouses":[{"id":"@I70362@","name":"Hans Voth","marriage":{"place":"Prussia"}}]},"@I137694@":{"id":"@I137694@","name":"Harv","sex":"M","birth":{"date":"BET 1955 AND 1960","year":"1955","place":"Winnipeg, Manitoba"},"death":{"date":"","year":"","place":""},"parents":["@I137674@","@I137691@"],"siblings":["@I137692@","@I137693@","@I137695@","@I137700@","@I137701@"],"children":[],"spouses":[]},"@I44465@":{"id":"@I44465@","name":"Eva Bartel","sex":"F","birth":{"date":"18 OCT 1809","year":"1809","place":"Deutsch Kazun, Masovia, Poland"},"death":{"date":"1875","year":"1875","place":"Deutsch Kazun, Masovia, Poland"},"parents":["@I44463@","@I44464@"],"siblings":["@I87329@","@I420147@","@I72212@","@I72213@","@I72214@","@I28317@","@I137719@","@I285582@","@I285583@"],"children":[],"spouses":[]},"@I273791@":{"id":"@I273791@","name":"Kasper Schmidt","sex":"M","birth":{"date":"1664","year":"1664","place":"Deutsch Konopat, Schwetz, Prussia"},"death":{"date":"abt 1733","year":"1733","place":"Deutsch Konopat, Schwetz, Prussia"},"parents":["@I58473@","@I58474@"],"siblings":["@I273707@","@I58475@"],"children":[],"spouses":[]},"@I135497@":{"id":"@I135497@","name":"Maria Wedel","sex":"F","birth":{"date":"17 FEB 1826","year":"1826","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"5 DEC 1892","year":"1892","place":"Johannestal, Marion County, Kansas"},"parents":["@I29183@","@I29184@"],"siblings":["@I1619624@","@I17238@","@I29174@","@I1628853@"],"children":[],"spouses":[]},"@I29652@":{"id":"@I29652@","name":"_____ _____","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":[],"siblings":[],"children":["@I29645@"],"spouses":[{"id":"@I29651@","name":"Heinrich Schroeder","marriage":{}}]},"@I1341137@":{"id":"@I1341137@","name":"_____ _____","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":[],"siblings":[],"children":["@I106644@","@I403629@"],"spouses":[{"id":"@I403627@","name":"_____ Wedel","marriage":{}}]},"@I59664@":{"id":"@I59664@","name":"Maria Wedel","sex":"F","birth":{"date":"21 SEP 1790","year":"1790","place":"Deutsch Konopat, Schwetz, Prussia"},"death":{"date":"16 MAY 1864","year":"1864","place":"Deutsch Czermno, Masovia, Poland"},"parents":["@I81631@","@I32195@"],"siblings":["@I28570@","@I29183@","@I106959@","@I28487@","@I494167@"],"children":[],"spouses":[]},"@I87329@":{"id":"@I87329@","name":"Sara Bartel","sex":"F","birth":{"date":"1811","year":"1811","place":"Deutsch Kazun, Masovia, Poland"},"death":{"date":"Bef 1823","year":"1823","place":"Deutsch Kazun, Masovia, Poland"},"parents":["@I44463@","@I44464@"],"siblings":["@I44465@","@I420147@","@I72212@","@I72213@","@I72214@","@I28317@","@I137719@","@I285582@","@I285583@"],"children":[],"spouses":[]},"@I81610@":{"id":"@I81610@","name":"Trincke Wedel","sex":"F","birth":{"date":"13 MAR 1722","year":"1722","place":""},"death":{"date":"","year":"","place":""},"parents":["@I47671@","@I47672@"],"siblings":["@I36392@","@I53759@","@I81612@","@I81613@","@I81614@","@I81615@","@I81616@","@I81617@","@I81618@"],"children":[],"spouses":[]},"@I1120429@":{"id":"@I1120429@","name":"Peter Kliwer","sex":"M","birth":{"date":"27 AUG 1822","year":"1822","place":"Treul, Schwetz, Prussia"},"death":{"date":"15 JAN 1823","year":"1823","place":"Treul, Schwetz, Prussia"},"parents":["@I29649@","@I29650@"],"siblings":["@I1120435@","@I29640@","@I1120434@","@I1120433@","@I1120432@","@I287034@","@I1120431@","@I1120430@"],"children":[],"spouses":[]},"@I287034@":{"id":"@I287034@","name":"Maria Kliewer","sex":"F","birth":{"date":"20 DEC 1816","year":"1816","place":"Treul, Schwetz, Prussia"},"death":{"date":"2 SEP 1890","year":"1890","place":"Halstead, Kansas"},"parents":["@I29649@","@I29650@"],"siblings":["@I1120435@","@I29640@","@I1120434@","@I1120433@","@I1120432@","@I1120431@","@I1120430@","@I1120429@"],"children":[],"spouses":[]},"@I106864@":{"id":"@I106864@","name":"Gerhard Voht","sex":"M","birth":{"date":"","year":"","place":""},"death":{"date":"abt 1775","year":"1775","place":"Schoensee, Culm, Prussia"},"parents":["@I70362@","@I103216@"],"siblings":["@I106660@","@I106862@","@I43132@","@I70363@","@I106630@","@I106863@","@I106631@"],"children":[],"spouses":[]},"@I28331@":{"id":"@I28331@","name":"Franz Andreas Bartel","sex":"M","birth":{"date":"23 OCT 1865","year":"1865","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"22 FEB 1944","year":"1944","place":"Lask, Poland"},"parents":["@I28317@","@I28318@"],"siblings":["@I286456@","@I28320@","@I28321@","@I28322@","@I28323@","@I28324@","@I28325@","@I28326@","@I28327@","@I28328@","@I28329@","@I28330@"],"children":[],"spouses":[]},"@I137719@":{"id":"@I137719@","name":"Sara Bartel","sex":"F","birth":{"date":"17 JUL 1823","year":"1823","place":"Deutsch Kazun, Masovia, Poland"},"death":{"date":"15 SEP 1854","year":"1854","place":"Nowosiadlo, Masovia, Poland"},"parents":["@I44463@","@I44464@"],"siblings":["@I44465@","@I87329@","@I420147@","@I72212@","@I72213@","@I72214@","@I28317@","@I285582@","@I285583@"],"children":[],"spouses":[]},"@I1616432@":{"id":"@I1616432@","name":"Anna Richert","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"bef 1809","year":"1809","place":""},"parents":[],"siblings":[],"children":["@I29182@"],"spouses":[{"id":"@I1616431@","name":"Christoph Schmidt","marriage":{}}]},"@I29184@":{"id":"@I29184@","name":"Helena Schmidt","sex":"F","birth":{"date":"abt 1802","year":"1802","place":""},"death":{"date":"1866?","year":"1866","place":""},"parents":[],"siblings":[],"children":["@I1619624@","@I17238@","@I135497@","@I29174@","@I1628853@"],"spouses":[{"id":"@I29183@","name":"Benjamin Wedel","marriage":{}},{"id":"@I29181@","name":"Karl Heier","marriage":{"date":"10 FEB 1838"}}]},"@I1619624@":{"id":"@I1619624@","name":"Maria Wedel","sex":"F","birth":{"date":"6 NOV 1822","year":"1822","place":"Deutsch Czermno, Masovia, Poland"},"death":{"date":"18 NOV 1822","year":"1822","place":"Deutsch Czermno, Masovia, Poland"},"parents":["@I29183@","@I29184@"],"siblings":["@I17238@","@I135497@","@I29174@","@I1628853@"],"children":[],"spouses":[]},"@I47671@":{"id":"@I47671@","name":"Peter Wedel","sex":"M","birth":{"date":"20 NOV 1699","year":"1699","place":""},"death":{"date":"29 NOV 1757","year":"1757","place":"Przechowka, Schwetz, Prussia"},"parents":["@I78067@","@I1106617@"],"siblings":["@I81622@","@I58526@","@I32105@","@I33795@","@I81625@","@I106649@"],"children":["@I81610@","@I36392@","@I53759@","@I81612@","@I81613@","@I81614@","@I81615@","@I81616@","@I81617@","@I81618@"],"spouses":[{"id":"@I47672@","name":"Maricke Richert","marriage":{"date":"3 MAY 1720","place":"Przechowka, Schwetz, Prussia"}}]},"@I134096@":{"id":"@I134096@","name":"Johann Penner","sex":"M","birth":{"date":"1 APR 1773","year":"1773","place":"Neu Dessau, Brandenburg, Prussia"},"death":{"date":"17 AUG 1849","year":"1849","place":"Gnadenfeld, Molotschna, South Russia"},"parents":["@I46633@","@I46634@"],"siblings":["@I140306@","@I140591@","@I223608@","@I140593@","@I140594@","@I140596@"],"children":[],"spouses":[]},"@I29169@":{"id":"@I29169@","name":"Heinrich Heier","sex":"M","birth":{"date":"1841","year":"1841","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"22 NOV 1841","year":"1841","place":"Deutsch Wymyschle, Masovia, Poland"},"parents":["@I29167@","@I29168@"],"siblings":["@I1629887@","@I29170@","@I29171@","@I29172@","@I29173@"],"children":[],"spouses":[]},"@I37961@":{"id":"@I37961@","name":"Frank H. Heier","sex":"M","birth":{"date":"2 MAR 1883","year":"1883","place":"Alfonsow, Prussia"},"death":{"date":"21 DEC 1973","year":"1973","place":"Reedley, California"},"parents":["@I12483@","@I12484@"],"siblings":["@I137952@","@I137953@","@I29176@","@I137954@","@I12485@","@I37967@","@I137131@"],"children":[],"spouses":[]},"@I78056@":{"id":"@I78056@","name":"_____ Wedel","sex":"M","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":["@I106644@","@I1189651@"],"siblings":["@I78068@"],"children":[],"spouses":[]},"@I136573@":{"id":"@I136573@","name":"Rosine Kraft","sex":"F","birth":{"date":"5 JAN 1780","year":"1780","place":"Alt Bielitz, Amt Driesen, Brandenburg, Germany"},"death":{"date":"31 OCT 1853","year":"1853","place":"Deutsch Wymyschle, Masovia, Poland"},"parents":[],"siblings":[],"children":["@I670457@","@I1620809@","@I1630776@","@I30473@","@I31777@","@I137715@","@I137716@","@I28318@","@I28372@","@I420148@","@I1620551@","@I137718@"],"spouses":[{"id":"@I136572@","name":"David Unruh","marriage":{"date":"5 MAY 1815","place":"Alt Bielitz, Amt Driesen, Brandenburg, Germany"}}]},"@I12483@":{"id":"@I12483@","name":"Heinrich K. Heier","sex":"M","birth":{"date":"20 AUG 1857","year":"1857","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"14 AUG 1943","year":"1943","place":"Deutsch Wymyschle, Masovia, Poland"},"parents":["@I29167@","@I29174@"],"siblings":["@I29175@","@I29177@","@I29178@","@I29179@","@I29180@"],"children":["@I137952@","@I37961@","@I137953@","@I29176@","@I137954@","@I12485@","@I37967@","@I137131@"],"spouses":[{"id":"@I12484@","name":"Anna Nachtigall","marriage":{"date":"18 NOV 1879"}}]},"@I494190@":{"id":"@I494190@","name":"Jacob Penner","sex":"M","birth":{"date":"abt 1747","year":"1747","place":""},"death":{"date":"bef 1809","year":"1809","place":"Czermno, Masovia, Poland"},"parents":[],"siblings":[],"children":["@I1616816@","@I56904@","@I1416397@"],"spouses":[{"id":"@I29182@","name":"Maria Schmidt","marriage":{}}]},"@I44464@":{"id":"@I44464@","name":"Sara Ewert","sex":"F","birth":{"date":"1785","year":"1785","place":""},"death":{"date":"","year":"","place":""},"parents":[],"siblings":[],"children":["@I44465@","@I87329@","@I420147@","@I72212@","@I72213@","@I72214@","@I28317@","@I137719@","@I285582@","@I285583@"],"spouses":[{"id":"@I44463@","name":"Andreas Bartel","marriage":{"date":"1808","place":"Deutsch Kazun, Masovia, Poland"}}]},"@I420147@":{"id":"@I420147@","name":"Agnetha Bartel","sex":"F","birth":{"date":"1812","year":"1812","place":""},"death":{"date":"1828","year":"1828","place":""},"parents":["@I44463@","@I44464@"],"siblings":["@I44465@","@I87329@","@I72212@","@I72213@","@I72214@","@I28317@","@I137719@","@I285582@","@I285583@"],"children":[],"spouses":[]},"@I137691@":{"id":"@I137691@","name":"Helen Harder","sex":"F","birth":{"date":"28 JUN 1932","year":"1932","place":"Neuenburg, Chortitza, South Russia"},"death":{"date":"4 MAR 2022","year":"2022","place":"Winnipeg, Manitoba"},"parents":[],"siblings":[],"children":["@I137692@","@I137693@","@I137694@","@I137695@","@I137700@","@I137701@"],"spouses":[{"id":"@I137674@","name":"Henry Hajer","marriage":{"date":"16 SEP 1950","place":"Winnipeg, Manitoba"}}]},"@I12484@":{"id":"@I12484@","name":"Anna Nachtigall","sex":"F","birth":{"date":"24 APR 1859","year":"1859","place":"Deutsch Zyck, Masovia, Poland"},"death":{"date":"30 MAR 1928","year":"1928","place":"Deutsch Wymyschle, Masovia, Poland"},"parents":["@I30470@","@I30471@"],"siblings":["@I1630275@","@I1635234@","@I1635514@","@I1635859@","@I1635994@"],"children":["@I137952@","@I37961@","@I137953@","@I29176@","@I137954@","@I12485@","@I37967@","@I137131@"],"spouses":[{"id":"@I12483@","name":"Heinrich K. Heier","marriage":{"date":"18 NOV 1879"}}]},"@I285583@":{"id":"@I285583@","name":"Maria Bartel","sex":"F","birth":{"date":"1828","year":"1828","place":"Deutsch Kazun, Masovia, Poland"},"death":{"date":"1828","year":"1828","place":"Deutsch Kazun, Masovia, Poland"},"parents":["@I44463@","@I44464@"],"siblings":["@I44465@","@I87329@","@I420147@","@I72212@","@I72213@","@I72214@","@I28317@","@I137719@","@I285582@"],"children":[],"spouses":[]},"@I29175@":{"id":"@I29175@","name":"Wilhelmine Heier","sex":"F","birth":{"date":"27 NOV 1854","year":"1854","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"18 JUN 1929","year":"1929","place":"Alfonsow, Prussia"},"parents":["@I29167@","@I29174@"],"siblings":["@I12483@","@I29177@","@I29178@","@I29179@","@I29180@"],"children":[],"spouses":[]},"@I29650@":{"id":"@I29650@","name":"Katharina Kliewer","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":["@I1251845@"],"siblings":[],"children":["@I1120435@","@I29640@","@I1120434@","@I1120433@","@I1120432@","@I287034@","@I1120431@","@I1120430@","@I1120429@"],"spouses":[{"id":"@I29649@","name":"Johan \"Jan\" Kliewer","marriage":{"date":"18 JUN 1803","place":"Treul, Schwetz, Prussia"}}]},"@I36392@":{"id":"@I36392@","name":"Maricke Wedel","sex":"F","birth":{"date":"17 MAR 1724","year":"1724","place":"Przechowka, Schwetz, Prussia"},"death":{"date":"","year":"","place":""},"parents":["@I47671@","@I47672@"],"siblings":["@I81610@","@I53759@","@I81612@","@I81613@","@I81614@","@I81615@","@I81616@","@I81617@","@I81618@"],"children":[],"spouses":[]},"@I1618254@":{"id":"@I1618254@","name":"Carl Heyer","sex":"M","birth":{"date":"24 JAN 1812","year":"1812","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"","year":"","place":""},"parents":["@I29181@","@I29182@"],"siblings":["@I1286742@","@I29167@","@I278352@","@I1618119@"],"children":[],"spouses":[]},"@I47896@":{"id":"@I47896@","name":"Benjamin Wedel","sex":"M","birth":{"date":"7 AUG 1766","year":"1766","place":""},"death":{"date":"14 APR 1813","year":"1813","place":""},"parents":["@I81617@","@I81620@"],"siblings":["@I81631@","@I106677@"],"children":[],"spouses":[]},"@I58473@":{"id":"@I58473@","name":"_____ Schmidt","sex":"M","birth":{"date":"Abt 1640","year":"1640","place":""},"death":{"date":"","year":"","place":""},"parents":[],"siblings":[],"children":["@I273791@","@I273707@","@I58475@"],"spouses":[{"id":"@I58474@","name":"_____ _____","marriage":{"date":"Abt 1669","place":"Deutsch Konopat, Schwetz, Prussia"}}]},"@I106865@":{"id":"@I106865@","name":"Efcke Vohten","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":["@I70362@","@I781489@"],"siblings":["@I106866@"],"children":[],"spouses":[]},"@I43124@":{"id":"@I43124@","name":"Ehrenst Schmidt","sex":"M","birth":{"date":"21 OCT 1725","year":"1725","place":"Deutsch Konopat, Schwetz, Prussia"},"death":{"date":"10 DEC 1775","year":"1775","place":"Prussia"},"parents":["@I43131@","@I43132@"],"siblings":["@I81620@","@I36326@"],"children":[],"spouses":[]},"@I29181@":{"id":"@I29181@","name":"Karl Heier","sex":"M","birth":{"date":"Abt 1779","year":"1779","place":"Prussia"},"death":{"date":"18 FEB 1841","year":"1841","place":"Deutsch Czermno, Masovia, Poland"},"parents":["@I1616429@","@I1616430@"],"siblings":[],"children":["@I1620814@","@I1286742@","@I1618254@","@I29167@","@I278352@","@I1618119@"],"spouses":[{"id":"@I1620815@","name":"_____ _____","marriage":{}},{"id":"@I29182@","name":"Maria Schmidt","marriage":{"date":"23 APR 1809","place":"Deutsch Wymyschle, Masovia, Poland"}},{"id":"@I29184@","name":"Helena Schmidt","marriage":{"date":"10 FEB 1838"}}]},"@I28318@":{"id":"@I28318@","name":"Luise Unruh","sex":"F","birth":{"date":"22 SEP 1821","year":"1821","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"","year":"","place":"Deutsch Wymyschle, Masovia, Poland"},"parents":["@I136572@","@I136573@"],"siblings":["@I670457@","@I1620809@","@I1630776@","@I30473@","@I31777@","@I137715@","@I137716@","@I28372@","@I420148@","@I1620551@","@I137718@"],"children":["@I1629886@","@I286456@","@I28320@","@I28321@","@I28322@","@I28323@","@I28324@","@I28325@","@I28326@","@I28327@","@I28328@","@I28329@","@I28330@","@I28331@"],"spouses":[{"id":"@I1618119@","name":"Heinrich Heier","marriage":{"date":"14 MAY 1841"}},{"id":"@I28317@","name":"Andreas Bartel","marriage":{"date":"25 AUG 1843"}}]},"@I1460969@":{"id":"@I1460969@","name":"Benjamin Wedel","sex":"M","birth":{"date":"8 DEC 1820","year":"1820","place":"Deutsch Wionczemin, Masovia, Poland"},"death":{"date":"","year":"","place":""},"parents":["@I29183@","@I494287@"],"siblings":[],"children":[],"spouses":[]},"@I137693@":{"id":"@I137693@","name":"Herb","sex":"M","birth":{"date":"BET 1955 AND 1960","year":"1955","place":"Winnipeg, Manitoba"},"death":{"date":"","year":"","place":""},"parents":["@I137674@","@I137691@"],"siblings":["@I137692@","@I137694@","@I137695@","@I137700@","@I137701@"],"children":[],"spouses":[]},"@I43131@":{"id":"@I43131@","name":"Ehrenst Schmidt","sex":"M","birth":{"date":"21 MAY 1699","year":"1699","place":"Deutsch Konopat, Schwetz, Prussia"},"death":{"date":"23 MAR 1765","year":"1765","place":"Prussia"},"parents":["@I273707@","@I273708@"],"siblings":["@I34063@","@I47660@","@I100094@","@I35842@","@I103216@"],"children":["@I43124@","@I81620@","@I36326@"],"spouses":[{"id":"@I43132@","name":"Sarcke Voth","marriage":{"date":"24 OCT 1720","place":"Deutsch Konopat, Schwetz, Prussia"}},{"id":"@I31990@","name":"Trincke Becker","marriage":{"date":"17 AUG 1760","place":"Deutsch Konopat, Schwetz, Prussia"}}]},"@I35842@":{"id":"@I35842@","name":"Elscke Schmidt","sex":"F","birth":{"date":"29 OCT 1708","year":"1708","place":""},"death":{"date":"","year":"","place":""},"parents":["@I273707@","@I273708@"],"siblings":["@I34063@","@I43131@","@I47660@","@I100094@","@I103216@"],"children":[],"spouses":[]},"@I1424627@":{"id":"@I1424627@","name":"_____ _____","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":[],"siblings":[],"children":["@I39691@","@I39114@","@I39692@","@I39118@","@I39690@"],"spouses":[{"id":"@I39121@","name":"Peter Jantz","marriage":{}}]},"@I1616430@":{"id":"@I1616430@","name":"Christine Wilk","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"bef 1809","year":"1809","place":""},"parents":[],"siblings":[],"children":["@I29181@"],"spouses":[{"id":"@I1616429@","name":"Johann Heier","marriage":{}}]},"@I136794@":{"id":"@I136794@","name":"Eva Maria Wedel","sex":"F","birth":{"date":"25 APR 1812","year":"1812","place":"Sady, Masovia, Poland"},"death":{"date":"","year":"","place":""},"parents":["@I81631@","@I1377593@"],"siblings":["@I1636854@","@I1622032@","@I1630633@","@I31792@","@I21@","@I286455@"],"children":[],"spouses":[]},"@I29180@":{"id":"@I29180@","name":"Sara Heier","sex":"F","birth":{"date":"10 FEB 1866","year":"1866","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"24 JUN 1878","year":"1878","place":"Deutsch Wymyschle, Masovia, Poland"},"parents":["@I29167@","@I29174@"],"siblings":["@I29175@","@I12483@","@I29177@","@I29178@","@I29179@"],"children":[],"spouses":[]},"@I29174@":{"id":"@I29174@","name":"Susanna Wedel","sex":"F","birth":{"date":"19 JAN 1828","year":"1828","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"","year":"","place":""},"parents":["@I29183@","@I29184@"],"siblings":["@I1619624@","@I17238@","@I135497@","@I1628853@"],"children":["@I30490@","@I29265@","@I29175@","@I12483@","@I29177@","@I29178@","@I29179@","@I29180@"],"spouses":[{"id":"@I30487@","name":"Peter Penner","marriage":{"date":"15 AUG 1849"}},{"id":"@I29167@","name":"Karl Heier","marriage":{"date":"6 MAY 1853"}}]},"@I29646@":{"id":"@I29646@","name":"Anna Kliewer","sex":"F","birth":{"date":"11 AUG 1854","year":"1854","place":"Kozikow, Masovia, Poland"},"death":{"date":"13 OCT 1854","year":"1854","place":""},"parents":["@I29640@","@I29645@"],"siblings":["@I29647@","@I29648@"],"children":[],"spouses":[]},"@I494287@":{"id":"@I494287@","name":"Katharina Funk","sex":"F","birth":{"date":"abt 1796","year":"1796","place":""},"death":{"date":"8 DEC 1820","year":"1820","place":"Deutsch Wionczemin, Masovia, Poland"},"parents":[],"siblings":[],"children":["@I1460969@"],"spouses":[{"id":"@I29183@","name":"Benjamin Wedel","marriage":{"date":"10 NOV 1819","place":"Deutsch Czermno, Masovia, Poland"}}]},"@I39691@":{"id":"@I39691@","name":"Peter Jantz","sex":"M","birth":{"date":"Abt 1680","year":"1680","place":"Prussia"},"death":{"date":"","year":"","place":"Przechowka, Schwetz, Prussia"},"parents":["@I39121@","@I1424627@"],"siblings":["@I39114@","@I39692@","@I39118@","@I39690@"],"children":[],"spouses":[]},"@I137718@":{"id":"@I137718@","name":"Cornelius Unruh","sex":"M","birth":{"date":"25 JUL 1827","year":"1827","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"29 DEC 1915","year":"1915","place":"Lansing, Michigan"},"parents":["@I136572@","@I136573@"],"siblings":["@I670457@","@I1620809@","@I1630776@","@I30473@","@I31777@","@I137715@","@I137716@","@I28318@","@I28372@","@I420148@","@I1620551@"],"children":[],"spouses":[]},"@I106649@":{"id":"@I106649@","name":"Jacob Wedel","sex":"M","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":["@I78067@","@I1106617@"],"siblings":["@I47671@","@I81622@","@I58526@","@I32105@","@I33795@","@I81625@"],"children":[],"spouses":[]},"@I898971@":{"id":"@I898971@","name":"Jacob Penner","sex":"M","birth":{"date":"","year":"","place":"Gross Werder Area, Prussia"},"death":{"date":"","year":"","place":""},"parents":["@I46633@","@I898970@"],"siblings":["@I32192@","@I898972@"],"children":[],"spouses":[]},"@I1635514@":{"id":"@I1635514@","name":"Wilhelm Nachtigal","sex":"M","birth":{"date":"31 JAN 1854","year":"1854","place":"Deutsch Zyck, Masovia, Poland"},"death":{"date":"29 JUN 1855","year":"1855","place":"Deutsch Zyck, Masovia, Poland"},"parents":["@I30470@","@I30471@"],"siblings":["@I1630275@","@I1635234@","@I1635859@","@I1635994@","@I12484@"],"children":[],"spouses":[]},"@I31777@":{"id":"@I31777@","name":"Wilhelmine Unruh","sex":"F","birth":{"date":"17 FEB 1817","year":"1817","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"22 JAN 1883","year":"1883","place":"Deutsch Wymyschle, Masovia, Poland"},"parents":["@I136572@","@I136573@"],"siblings":["@I670457@","@I1620809@","@I1630776@","@I30473@","@I137715@","@I137716@","@I28318@","@I28372@","@I420148@","@I1620551@","@I137718@"],"children":[],"spouses":[]},"@I1120431@":{"id":"@I1120431@","name":"Heinrich Kliewer","sex":"M","birth":{"date":"18 MAR 1817","year":"1817","place":"Treul, Schwetz, Prussia"},"death":{"date":"5 JAN 1825","year":"1825","place":"Treul, Schwetz, Prussia"},"parents":["@I29649@","@I29650@"],"siblings":["@I1120435@","@I29640@","@I1120434@","@I1120433@","@I1120432@","@I287034@","@I1120430@","@I1120429@"],"children":[],"spouses":[]},"@I29859@":{"id":"@I29859@","name":"Kornelius Kliewer","sex":"M","birth":{"date":"3 MAR 1885","year":"1885","place":"Juliszew, Masovia, Poland (formerly Stokow)"},"death":{"date":"1945","year":"1945","place":"Poland"},"parents":["@I29647@","@I28327@"],"siblings":["@I29857@","@I136062@","@I29860@","@I29861@","@I59303@"],"children":[],"spouses":[]},"@I28570@":{"id":"@I28570@","name":"Peter Wedel","sex":"M","birth":{"date":"8 JAN 1793","year":"1793","place":"Deutsch Konopat, Schwetz, Prussia"},"death":{"date":"1 SEP 1855","year":"1855","place":"Deutsch Czermno, Masovia, Poland"},"parents":["@I81631@","@I32195@"],"siblings":["@I59664@","@I29183@","@I106959@","@I28487@","@I494167@"],"children":[],"spouses":[]},"@I29172@":{"id":"@I29172@","name":"Jakob Heier","sex":"M","birth":{"date":"18 JAN 1847","year":"1847","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"5 JUN 1931","year":"1931","place":"Cottonwood County, Minnesota"},"parents":["@I29167@","@I29168@"],"siblings":["@I29169@","@I1629887@","@I29170@","@I29171@","@I29173@"],"children":[],"spouses":[]},"@I78068@":{"id":"@I78068@","name":"Frantz Wedel","sex":"M","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":["@I106644@","@I1189651@"],"siblings":["@I78056@"],"children":["@I78067@","@I106645@"],"spouses":[{"id":"@I64195@","name":"_____ _____","marriage":{}}]},"@I1633163@":{"id":"@I1633163@","name":"Maria Nachtigal","sex":"F","birth":{"date":"1821","year":"1821","place":"Schoeneich, Culm, Prussia"},"death":{"date":"","year":"","place":""},"parents":["@I792932@","@I792933@"],"siblings":["@I30470@"],"children":[],"spouses":[]},"@I273708@":{"id":"@I273708@","name":"Efcke Unrau","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":[],"siblings":[],"children":["@I34063@","@I43131@","@I47660@","@I100094@","@I35842@","@I103216@"],"spouses":[{"id":"@I273707@","name":"Ehrenst Schmidt","marriage":{"place":"Konopat, Schwetz, Prussia"}}]},"@I103216@":{"id":"@I103216@","name":"Lisa Schmidt","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":"Prussia"},"parents":["@I273707@","@I273708@"],"siblings":["@I34063@","@I43131@","@I47660@","@I100094@","@I35842@"],"children":["@I106660@","@I106862@","@I43132@","@I70363@","@I106630@","@I106863@","@I106631@","@I106864@"],"spouses":[{"id":"@I70362@","name":"Hans Voth","marriage":{}}]},"@I106630@":{"id":"@I106630@","name":"Jacob Voht","sex":"M","birth":{"date":"24 JUL 1724","year":"1724","place":"Schoensee, Culm, Prussia"},"death":{"date":"4 JUN 1793","year":"1793","place":""},"parents":["@I70362@","@I103216@"],"siblings":["@I106660@","@I106862@","@I43132@","@I70363@","@I106863@","@I106631@","@I106864@"],"children":[],"spouses":[]},"@I403674@":{"id":"@I403674@","name":"_____ _____","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":[],"siblings":[],"children":["@I70362@"],"spouses":[{"id":"@I70361@","name":"_____ Voth","marriage":{}}]},"@I137676@":{"id":"@I137676@","name":"Harry Hajer","sex":"M","birth":{"date":"28 JUN 1934","year":"1934","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"23 MAY 1945","year":"1945","place":"Deutsch Wymyschle, Masovia, Poland"},"parents":["@I137131@","@I59303@"],"siblings":["@I137132@","@I137671@","@I137672@","@I137673@","@I137674@","@I137675@"],"children":[],"spouses":[]},"@I29640@":{"id":"@I29640@","name":"Johann Kliewer","sex":"M","birth":{"date":"24 OCT 1805","year":"1805","place":"Treul, Schwetz, Prussia"},"death":{"date":"10 APR 1900","year":"1900","place":""},"parents":["@I29649@","@I29650@"],"siblings":["@I1120435@","@I1120434@","@I1120433@","@I1120432@","@I287034@","@I1120431@","@I1120430@","@I1120429@"],"children":["@I29646@","@I29647@","@I29648@"],"spouses":[{"id":"@I103464@","name":"Maria Tesmer","marriage":{"date":"6 OCT 1836"}},{"id":"@I29645@","name":"Eva Schroeder","marriage":{"date":"13 AUG 1853"}}]},"@I70363@":{"id":"@I70363@","name":"Heinrich Voth","sex":"M","birth":{"date":"Abt 1723","year":"1723","place":"Schoensee, Culm, Prussia"},"death":{"date":"","year":"","place":""},"parents":["@I70362@","@I103216@"],"siblings":["@I106660@","@I106862@","@I43132@","@I106630@","@I106863@","@I106631@","@I106864@"],"children":[],"spouses":[]},"@I1251845@":{"id":"@I1251845@","name":"Heinrich Kliewer","sex":"M","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":[],"siblings":[],"children":["@I29650@"],"spouses":[]},"@I28329@":{"id":"@I28329@","name":"Helene Bartel","sex":"F","birth":{"date":"4 FEB 1861","year":"1861","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"28 OCT 1895","year":"1895","place":"Deutsch Wymyschle, Masovia, Poland"},"parents":["@I28317@","@I28318@"],"siblings":["@I286456@","@I28320@","@I28321@","@I28322@","@I28323@","@I28324@","@I28325@","@I28326@","@I28327@","@I28328@","@I28330@","@I28331@"],"children":[],"spouses":[]},"@I57795@":{"id":"@I57795@","name":"Katharina Schroeder","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"bef 1845","year":"1845","place":""},"parents":[],"siblings":[],"children":["@I286043@","@I1119463@","@I47777@","@I30471@","@I28520@"],"spouses":[{"id":"@I57794@","name":"Peter Eckert","marriage":{}}]},"@I48246@":{"id":"@I48246@","name":"_____ _____","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":[],"siblings":[],"children":["@I48242@","@I41202@"],"spouses":[{"id":"@I48245@","name":"_____ Richert","marriage":{}}]},"@I81617@":{"id":"@I81617@","name":"Benjamin Wedel","sex":"M","birth":{"date":"27 OCT 1742","year":"1742","place":"Prussia"},"death":{"date":"4 JAN 1785","year":"1785","place":""},"parents":["@I47671@","@I47672@"],"siblings":["@I81610@","@I36392@","@I53759@","@I81612@","@I81613@","@I81614@","@I81615@","@I81616@","@I81618@"],"children":["@I47896@","@I81631@","@I106677@"],"spouses":[{"id":"@I81620@","name":"Trincke Schmidt","marriage":{"date":"4 NOV 1760","place":"Przechowka, Schwetz, Prussia"}}]},"@I1121943@":{"id":"@I1121943@","name":"Ancke Kliwer","sex":"F","birth":{"date":"Abt 1759","year":"1759","place":""},"death":{"date":"","year":"","place":""},"parents":["@I1121947@","@I1121946@"],"siblings":["@I29649@","@I1121945@","@I806566@","@I1121942@"],"children":[],"spouses":[]},"@I29170@":{"id":"@I29170@","name":"Andreas Carl Heier","sex":"M","birth":{"date":"6 JAN 1844","year":"1844","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"15 SEP 1916","year":"1916","place":"Mountain Lake, Minnesota"},"parents":["@I29167@","@I29168@"],"siblings":["@I29169@","@I1629887@","@I29171@","@I29172@","@I29173@"],"children":[],"spouses":[]},"@I29861@":{"id":"@I29861@","name":"Minna Kliewer","sex":"F","birth":{"date":"14 FEB 1888","year":"1888","place":"Juliszew, Masovia, Poland (formerly Stokow)"},"death":{"date":"26 MAR 1977","year":"1977","place":"Kitchener, Ontario"},"parents":["@I29647@","@I28327@"],"siblings":["@I29857@","@I136062@","@I29859@","@I29860@","@I59303@"],"children":[],"spouses":[]},"@I32195@":{"id":"@I32195@","name":"Maricke Bethcke","sex":"F","birth":{"date":"","year":"","place":"Neu Dessau, Brandenburg, Prussia"},"death":{"date":"bef 1809","year":"1809","place":""},"parents":["@I32191@","@I32192@"],"siblings":["@I32193@","@I32194@"],"children":["@I59664@","@I28570@","@I29183@","@I106959@","@I28487@","@I494167@"],"spouses":[{"id":"@I81631@","name":"Peter Wedel","marriage":{"date":"1790"}}]},"@I137677@":{"id":"@I137677@","name":"Katharina Harder","sex":"F","birth":{"date":"26 JUN 1897","year":"1897","place":"Rural Municipality of Rhineland, Manitoba"},"death":{"date":"1 FEB 1975","year":"1975","place":"Winnipeg, Manitoba"},"parents":[],"siblings":[],"children":[],"spouses":[{"id":"@I137131@","name":"Wilhelm Hajer","marriage":{"date":"8 NOV 1964","place":"Winnipeg, Manitoba"}}]},"@I1286742@":{"id":"@I1286742@","name":"Johann Heier","sex":"M","birth":{"date":"18 AUG 1809","year":"1809","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"23 JUN 1840","year":"1840","place":"Deutsch Wymyschle, Masovia, Poland"},"parents":["@I29181@","@I29182@"],"siblings":["@I1618254@","@I29167@","@I278352@","@I1618119@"],"children":[],"spouses":[]},"@I1416397@":{"id":"@I1416397@","name":"Maria Penner","sex":"F","birth":{"date":"Abt 1806","year":"1806","place":""},"death":{"date":"4 JUN 1810","year":"1810","place":"Czermno, Masovia, Poland"},"parents":["@I494190@","@I29182@"],"siblings":["@I1616816@","@I56904@"],"children":[],"spouses":[]},"@I1630633@":{"id":"@I1630633@","name":"Susanna Wedel","sex":"F","birth":{"date":"abt 1818","year":"1818","place":""},"death":{"date":"10 JAN 1826","year":"1826","place":"Deutsch Czermno, Masovia, Poland"},"parents":["@I81631@","@I1377593@"],"siblings":["@I1636854@","@I136794@","@I1622032@","@I31792@","@I21@","@I286455@"],"children":[],"spouses":[]},"@I29168@":{"id":"@I29168@","name":"Helena Schmidt","sex":"F","birth":{"date":"15 JUL 1819","year":"1819","place":"Brenkenhofswalde, Brandenburg, Prussia"},"death":{"date":"15 JAN 1853","year":"1853","place":"Deutsch Czermno, Masovia, Poland"},"parents":[],"siblings":[],"children":["@I29169@","@I1629887@","@I29170@","@I29171@","@I29172@","@I29173@"],"spouses":[{"id":"@I29167@","name":"Karl Heier","marriage":{"date":"17 NOV 1839"}}]},"@I39118@":{"id":"@I39118@","name":"Hinrich Jantz","sex":"M","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":["@I39121@","@I1424627@"],"siblings":["@I39691@","@I39114@","@I39692@","@I39690@"],"children":[],"spouses":[]},"@I32191@":{"id":"@I32191@","name":"Adam Bethcke","sex":"M","birth":{"date":"","year":"","place":""},"death":{"date":"1788","year":"1788","place":""},"parents":[],"siblings":[],"children":["@I32193@","@I32194@","@I32195@","@I32197@","@I32198@","@I32199@"],"spouses":[{"id":"@I32192@","name":"Stiencke Penner","marriage":{"date":"1766","place":"Neu Dessau, Brandenburg, Prussia"}},{"id":"@I32196@","name":"Efcke Isaacs","marriage":{"date":"Abt 1770","place":"Neu Dessau, Brandenburg, Prussia"}}]},"@I106862@":{"id":"@I106862@","name":"Trincke Voht","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":["@I70362@","@I103216@"],"siblings":["@I106660@","@I43132@","@I70363@","@I106630@","@I106863@","@I106631@","@I106864@"],"children":[],"spouses":[]},"@I29176@":{"id":"@I29176@","name":"Heinrich Heier","sex":"M","birth":{"date":"8 JUL 1886","year":"1886","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"8 JUL 1893","year":"1893","place":"Deutsch Wymyschle, Masovia, Poland"},"parents":["@I12483@","@I12484@"],"siblings":["@I137952@","@I37961@","@I137953@","@I137954@","@I12485@","@I37967@","@I137131@"],"children":[],"spouses":[]},"@I30471@":{"id":"@I30471@","name":"Maria Ekkert","sex":"F","birth":{"date":"29 APR 1826","year":"1826","place":"Nieszewka, Prussia"},"death":{"date":"12 DEC 1862","year":"1862","place":"Deutsch Zyck, Masovia, Poland"},"parents":["@I57794@","@I57795@"],"siblings":["@I286043@","@I1119463@","@I47777@","@I28520@"],"children":["@I1630275@","@I1635234@","@I1635514@","@I1635859@","@I1635994@","@I12484@"],"spouses":[{"id":"@I30470@","name":"David Nachtigall","marriage":{"date":"19 NOV 1848"}}]},"@I28492@":{"id":"@I28492@","name":"Elisabeth Foth","sex":"F","birth":{"date":"15 JUL 1837","year":"1837","place":"Wonsosz bei Gombin, Prussia"},"death":{"date":"","year":"","place":""},"parents":[],"siblings":[],"children":["@I1636633@","@I1636639@"],"spouses":[{"id":"@I30470@","name":"David Nachtigall","marriage":{"date":"7 FEB 1863","place":"Deutsch Zyck, Masovia, Poland"}}]},"@I59303@":{"id":"@I59303@","name":"Berta Kliewer","sex":"F","birth":{"date":"14 FEB 1896","year":"1896","place":"Juliszew, Masovia, Poland (formerly Stokow)"},"death":{"date":"8 FEB 1964","year":"1964","place":"Abbotsford, British Columbia"},"parents":["@I29647@","@I28327@"],"siblings":["@I29857@","@I136062@","@I29859@","@I29860@","@I29861@"],"children":["@I137132@","@I137671@","@I137672@","@I137673@","@I137674@","@I137675@","@I137676@"],"spouses":[{"id":"@I137131@","name":"Wilhelm Hajer","marriage":{"date":"16 JAN 1919","place":"Deutsch Wymyschle, Masovia, Poland"}}]},"@I29647@":{"id":"@I29647@","name":"Heinrich Kliewer","sex":"M","birth":{"date":"25 DEC 1855","year":"1855","place":"Juliszew, Masovia, Poland (formerly Stokow)"},"death":{"date":"2 MAR 1939","year":"1939","place":"Deutsch Wymyschle, Masovia, Poland"},"parents":["@I29640@","@I29645@"],"siblings":["@I29646@","@I29648@"],"children":["@I29857@","@I136062@","@I29859@","@I29860@","@I29861@","@I59303@"],"spouses":[{"id":"@I28327@","name":"Eva Bartel","marriage":{"date":"10 NOV 1875","place":"Deutsch Wymyschle, Masovia, Poland"}}]},"@I1106617@":{"id":"@I1106617@","name":"_____ _____","sex":"F","birth":{"date":"","year":"","place":""},"death":{"date":"","year":"","place":""},"parents":[],"siblings":[],"children":["@I47671@","@I81622@","@I58526@","@I32105@","@I33795@","@I81625@","@I106649@"],"spouses":[{"id":"@I78067@","name":"Benjamin Wedel","marriage":{}}]},"@I81612@":{"id":"@I81612@","name":"Peter Wedel","sex":"M","birth":{"date":"5 FEB 1729","year":"1729","place":""},"death":{"date":"3 APR 1759","year":"1759","place":""},"parents":["@I47671@","@I47672@"],"siblings":["@I81610@","@I36392@","@I53759@","@I81613@","@I81614@","@I81615@","@I81616@","@I81617@","@I81618@"],"children":[],"spouses":[]},"@I47777@":{"id":"@I47777@","name":"Kornelius Ekkert","sex":"M","birth":{"date":"12 APR 1824","year":"1824","place":"Ober Nessau, Thorn, Prussia"},"death":{"date":"","year":"","place":""},"parents":["@I57794@","@I57795@"],"siblings":["@I286043@","@I1119463@","@I30471@","@I28520@"],"children":[],"spouses":[]},"@I29860@":{"id":"@I29860@","name":"Wilhelm Heinrich Kliewer","sex":"M","birth":{"date":"14 OCT 1886","year":"1886","place":"Juliszew, Masovia, Poland (formerly Stokow)"},"death":{"date":"1 NOV 1968","year":"1968","place":"Virgil, Ontario"},"parents":["@I29647@","@I28327@"],"siblings":["@I29857@","@I136062@","@I29859@","@I29861@","@I59303@"],"children":[],"spouses":[]},"@I1630275@":{"id":"@I1630275@","name":"Eva Nachtigal","sex":"F","birth":{"date":"4 JAN 1850","year":"1850","place":"Deutsch Czermno, Masovia, Poland"},"death":{"date":"6 MAR 1851","year":"1851","place":"Deutsch Czermno, Masovia, Poland"},"parents":["@I30470@","@I30471@"],"siblings":["@I1635234@","@I1635514@","@I1635859@","@I1635994@","@I12484@"],"children":[],"spouses":[]},"@I28317@":{"id":"@I28317@","name":"Andreas Bartel","sex":"M","birth":{"date":"2 APR 1821","year":"1821","place":"Deutsch Kazun, Masovia, Poland"},"death":{"date":"17 NOV 1885","year":"1885","place":"Deutsch Wymyschle, Masovia, Poland"},"parents":["@I44463@","@I44464@"],"siblings":["@I44465@","@I87329@","@I420147@","@I72212@","@I72213@","@I72214@","@I137719@","@I285582@","@I285583@"],"children":["@I1466353@","@I286456@","@I28320@","@I28321@","@I28322@","@I28323@","@I28324@","@I28325@","@I28326@","@I28327@","@I28328@","@I28329@","@I28330@","@I28331@"],"spouses":[{"id":"@I1155889@","name":"Eva Nickel","marriage":{}},{"id":"@I28318@","name":"Luise Unruh","marriage":{"date":"25 AUG 1843"}}]},"@I28330@":{"id":"@I28330@","name":"Zacharias Bartel","sex":"M","birth":{"date":"17 OCT 1862","year":"1862","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"16 JAN 1863","year":"1863","place":"Deutsch Wymyschle, Masovia, Poland"},"parents":["@I28317@","@I28318@"],"siblings":["@I286456@","@I28320@","@I28321@","@I28322@","@I28323@","@I28324@","@I28325@","@I28326@","@I28327@","@I28328@","@I28329@","@I28331@"],"children":[],"spouses":[]},"@I1628853@":{"id":"@I1628853@","name":"Anna Wedel","sex":"F","birth":{"date":"3 MAY 1830","year":"1830","place":"Deutsch Czermno, Masovia, Poland"},"death":{"date":"6 MAR 1832","year":"1832","place":"Deutsch Czermno, Masovia, Poland"},"parents":["@I29183@","@I29184@"],"siblings":["@I1619624@","@I17238@","@I135497@","@I29174@"],"children":[],"spouses":[]},"@I137131@":{"id":"@I137131@","name":"Wilhelm Hajer","sex":"M","birth":{"date":"16 JAN 1896","year":"1896","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"29 DEC 1982","year":"1982","place":"Winnipeg, Manitoba"},"parents":["@I12483@","@I12484@"],"siblings":["@I137952@","@I37961@","@I137953@","@I29176@","@I137954@","@I12485@","@I37967@"],"children":["@I137132@","@I137671@","@I137672@","@I137673@","@I137674@","@I137675@","@I137676@"],"spouses":[{"id":"@I59303@","name":"Berta Kliewer","marriage":{"date":"16 JAN 1919","place":"Deutsch Wymyschle, Masovia, Poland"}},{"id":"@I137677@","name":"Katharina Harder","marriage":{"date":"8 NOV 1964","place":"Winnipeg, Manitoba"}},{"id":"@I1035798@","name":"Anna Giesbrecht","marriage":{}}]},"@I81616@":{"id":"@I81616@","name":"Jacob Wedel","sex":"M","birth":{"date":"10 OCT 1738","year":"1738","place":""},"death":{"date":"12 APR 1758","year":"1758","place":""},"parents":["@I47671@","@I47672@"],"siblings":["@I81610@","@I36392@","@I53759@","@I81612@","@I81613@","@I81614@","@I81615@","@I81617@","@I81618@"],"children":[],"spouses":[]},"@I106677@":{"id":"@I106677@","name":"Cornels Wedel","sex":"M","birth":{"date":"29 SEP 1771","year":"1771","place":""},"death":{"date":"26 MAY 1845","year":"1845","place":"Deutsch Wymyschle, Masovia, Poland"},"parents":["@I81617@","@I81620@"],"siblings":["@I47896@","@I81631@"],"children":[],"spouses":[]},"@I29857@":{"id":"@I29857@","name":"Peter Kliewer","sex":"M","birth":{"date":"24 MAY 1877","year":"1877","place":"Juliszew, Masovia, Poland (formerly Stokow)"},"death":{"date":"3 JUL 1967","year":"1967","place":"Chaco, Paraguay"},"parents":["@I29647@","@I28327@"],"siblings":["@I136062@","@I29859@","@I29860@","@I29861@","@I59303@"],"children":[],"spouses":[]},"@I1377593@":{"id":"@I1377593@","name":"Maria Wedel","sex":"F","birth":{"date":"abt 1791","year":"1791","place":""},"death":{"date":"","year":"","place":""},"parents":[],"siblings":[],"children":["@I1636854@","@I136794@","@I1622032@","@I1630633@","@I31792@","@I21@","@I286455@"],"spouses":[{"id":"@I81631@","name":"Peter Wedel","marriage":{}}]},"@I29178@":{"id":"@I29178@","name":"Jakobine Heier","sex":"F","birth":{"date":"15 SEP 1862","year":"1862","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"1 OCT 1862","year":"1862","place":"Deutsch Wymyschle, Masovia, Poland"},"parents":["@I29167@","@I29174@"],"siblings":["@I29175@","@I12483@","@I29177@","@I29179@","@I29180@"],"children":[],"spouses":[]},"@I137954@":{"id":"@I137954@","name":"Amalie Heier","sex":"F","birth":{"date":"18 JAN 1889","year":"1889","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"20 SEP 1957","year":"1957","place":"Winnipeg, Manitoba"},"parents":["@I12483@","@I12484@"],"siblings":["@I137952@","@I37961@","@I137953@","@I29176@","@I12485@","@I37967@","@I137131@"],"children":[],"spouses":[]},"@I137692@":{"id":"@I137692@","name":"Rudy","sex":"M","birth":{"date":"12 JUL 1951","year":"1951","place":"Winnipeg, Manitoba"},"death":{"date":"JAN 1983","year":"1983","place":""},"parents":["@I137674@","@I137691@"],"siblings":["@I137693@","@I137694@","@I137695@","@I137700@","@I137701@"],"children":[],"spouses":[]},"@I36326@":{"id":"@I36326@","name":"Elscke Schmidt","sex":"F","birth":{"date":"25 NOV 1747","year":"1747","place":"Deutsch Konopat, Schwetz, Prussia"},"death":{"date":"abt 1811","year":"1811","place":""},"parents":["@I43131@","@I43132@"],"siblings":["@I43124@","@I81620@"],"children":[],"spouses":[]},"@I21@":{"id":"@I21@","name":"Wilhelmine Wedel","sex":"F","birth":{"date":"17 JAN 1825","year":"1825","place":"Deutsch Wymyschle, Masovia, Poland"},"death":{"date":"16 OCT 1868","year":"1868","place":""},"parents":["@I81631@","@I1377593@"],"siblings":["@I1636854@","@I136794@","@I1622032@","@I1630633@","@I31792@","@I286455@"],"children":[],"spouses":[]},"@I39121@":{"id":"@I39121@","name":"Peter Jantz","sex":"M","birth":{"date":"","year":"","place":"Schwetz region, Prussia"},"death":{"date":"","year":"","place":"Schwetz region, Prussia"},"parents":[],"siblings":[],"children":["@I39691@","@I39114@","@I39692@","@I39118@","@I39690@"],"spouses":[{"id":"@I1424627@","name":"_____ _____","marriage":{}}]},"@I286043@":{"id":"@I286043@","name":"Heinrich Eckert","sex":"M","birth":{"date":"Abt 1812","year":"1812","place":""},"death":{"date":"15 MAR 1841","year":"1841","place":"Neuhoefer Kaempe, Masovia, Poland"},"parents":["@I57794@","@I57795@"],"siblings":["@I1119463@","@I47777@","@I30471@","@I28520@"],"children":[],"spouses":[]}};
+const BUHLER_LINE = ["@I137674@", "@I137131@", "@I12483@", "@I29167@", "@I29181@", "@I1616429@"];
+const DESC = {
+  "couple": {
+    "a": "Henry Hajer",
+    "aDates": "1929–2022",
+    "b": "Helen Harder",
+    "bDates": "1932–2022",
+    "married": "Married September 16, 1950",
+    "summary": "6 children · 15 grandchildren · 22 great-grandchildren"
+  },
+  "children": [
+    {"id":"@I137692@","name":"Rudy","spouse":"Lisa Anne","status":"predeceased","children":[
+      {"name":"Jesse","spouse":"Larissa","children":["Avery","Darian"]},
+      {"name":"Heidi","spouse":"Jeremy","children":[],"childrenNote":"3 children"}
+    ]},
+    {"id":"@I137693@","name":"Herb","spouse":"Lisa","children":[
+      {"name":"Corinne","children":["Donald"]},
+      {"name":"Leslie","spouse":"Derek","children":["Cassidy","Allie"]},
+      {"name":"Lyric","spouse":"Kris","children":[]}
+    ]},
+    {"id":"@I137694@","name":"Harv","spouse":"Debbie","children":[
+      {"name":"Karly","spouse":"Brad","children":["Kenley","Landon"]},
+      {"name":"Sam","children":[]},
+      {"name":"Steven","children":[]}
+    ]},
+    {"id":"@I137695@","name":"Wendy","spouse":"Rick","children":[
+      {"name":"Levi","children":[]},
+      {"name":"Danika","children":[]}
+    ]},
+    {"id":"@I137700@","name":"Cindy","spouse":"Richard","children":[
+      {"name":"Adam","spouse":"Mandy","children":["Elliot","Asher","Cannon","Hayes","Rone"]},
+      {"name":"Maliry","spouse":"Angelo","children":["Oliver","Annabel"]},
+      {"name":"Jeremiah","spouse":"Heidi","children":["Sena","Copelin","Auden"]}
+    ]},
+    {"id":"@I137701@","name":"Jennifer","spouse":"Duane","children":[
+      {"name":"Amanda","children":[]},
+      {"name":"Tiffany","spouse":"Juan","children":["Sofia","Elena"]}
+    ]}
+  ]
+};
+const ROOT = "@I137674@";
+
+const views=[...document.querySelectorAll('.view')];
+const viewButtons=[...document.querySelectorAll('[data-view]')];
+viewButtons.forEach(btn=>btn.addEventListener('click',()=>{
+  viewButtons.forEach(b=>b.classList.toggle('is-active',b===btn));
+  views.forEach(v=>v.classList.toggle('is-active',v.id===btn.dataset.view));
+  document.querySelector('.controls').scrollIntoView({behavior:'smooth',block:'start'});
+}));
+
+function years(person){
+  const b=person.birth?.year||'';
+  const d=person.death?.year||'';
+  if(b&&d) return `${b}–${d}`;
+  if(b) return `born ${b}`;
+  if(d) return `died ${d}`;
+  return '';
+}
+function primaryPlace(person){
+  return person.birth?.place || person.death?.place || '';
+}
+function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+const openBranches = new Set();
+
+function buildPedigreeLevels() {
+  // Each entry carries a binary pedigree slot:
+  // father = slot*2, mother = slot*2+1.
+  // This keeps each parent pair above the correct child branch.
+  const levels = [[{ id: ROOT, slot: 0 }]];
+  let current = levels[0];
+
+  for (let depth = 1; depth < 12; depth++) {
+    const next = [];
+
+    current.forEach(entry => {
+      const { id, slot } = entry;
+      const showParents = depth === 1 || openBranches.has(id);
+      if (!showParents) return;
+
+      const parents = PEOPLE[id]?.parents || [];
+
+      if (parents[0]) next.push({ id: parents[0], slot: slot * 2 });
+      if (parents[1]) next.push({ id: parents[1], slot: slot * 2 + 1 });
+    });
+
+    if (!next.length) break;
+    levels.push(next);
+    current = next;
+  }
+
+  return levels;
+}
+
+function ancestorLabel(depthFromHenry, count) {
+  const labels = [
+    'Henry',
+    'Parents',
+    'Grandparents',
+    'Great-grandparents',
+    '2× great-grandparents',
+    '3× great-grandparents',
+    '4× great-grandparents',
+    '5× great-grandparents',
+    '6× great-grandparents',
+    '7× great-grandparents',
+    'Earlier generations'
+  ];
+  const base = labels[depthFromHenry] || `Generation ${depthFromHenry}`;
+  return `${base} · ${count} ${count === 1 ? 'person' : 'people'}`;
+}
+
+function card(id, root = false) {
+  const p = PEOPLE[id];
+  if (!p) return '';
+
+  const hasParents = (p.parents || []).length > 0;
+  const isOpen = openBranches.has(id);
+
+  return `<div class="couple-block" data-node="${esc(id)}">
+    <button class="person-card ${root ? 'root' : ''}" data-person="${esc(id)}">
+      <div class="name">${esc(p.name)}</div>
+      <div class="dates">${esc(years(p))}</div>
+      <div class="place">${esc(primaryPlace(p))}</div>
+    </button>
+    ${hasParents ? `<button class="branch-button" data-expand="${esc(id)}">${isOpen ? 'Hide parents ↓' : 'Show parents ↑'}</button>` : ''}
+  </div>`;
+}
+
+
+const ancestorView = {
+  scale: 1,
+  x: 0,
+  y: 0,
+  minScale: .35,
+  maxScale: 1.6,
+  initialized: false
+};
+
+function applyAncestorTransform() {
+  const explorer = document.getElementById('ancestorExplorer');
+  if (!explorer) return;
+
+  // CSS zoom changes layout rather than scaling one rasterized layer,
+  // which keeps text and card edges much sharper.
+  explorer.style.zoom = ancestorView.scale;
+  explorer.style.left = `${Math.round(ancestorView.x)}px`;
+  explorer.style.top = `${Math.round(ancestorView.y)}px`;
+}
+
+function clampScale(value) {
+  return Math.max(ancestorView.minScale, Math.min(ancestorView.maxScale, value));
+}
+
+function zoomAncestorAt(clientX, clientY, nextScale) {
+  const viewport = document.getElementById('ancestorViewport');
+  if (!viewport) return;
+
+  const rect = viewport.getBoundingClientRect();
+  const oldScale = ancestorView.scale;
+  nextScale = clampScale(nextScale);
+
+  const px = clientX - rect.left;
+  const py = clientY - rect.top;
+
+  // World coordinates are unzoomed layout coordinates.
+  const worldX = (px - ancestorView.x) / oldScale;
+  const worldY = (py - ancestorView.y) / oldScale;
+
+  ancestorView.scale = nextScale;
+  ancestorView.x = px - worldX * nextScale;
+  ancestorView.y = py - worldY * nextScale;
+
+  applyAncestorTransform();
+}
+
+function centerNode(id, verticalRatio = .55) {
+  const viewport = document.getElementById('ancestorViewport');
+  const explorer = document.getElementById('ancestorExplorer');
+  const node = explorer?.querySelector(`[data-node="${CSS.escape(id)}"]`);
+  if (!viewport || !explorer || !node) return;
+
+  const viewportRect = viewport.getBoundingClientRect();
+  const nodeRect = node.getBoundingClientRect();
+
+  ancestorView.x += viewportRect.left + viewportRect.width / 2 -
+    (nodeRect.left + nodeRect.width / 2);
+
+  ancestorView.y += viewportRect.top + viewportRect.height * verticalRatio -
+    (nodeRect.top + nodeRect.height / 2);
+
+  applyAncestorTransform();
+}
+
+function centerParentsOf(id) {
+  const viewport = document.getElementById('ancestorViewport');
+  const explorer = document.getElementById('ancestorExplorer');
+  const parentIds = PEOPLE[id]?.parents || [];
+  const nodes = parentIds
+    .map(pid => explorer?.querySelector(`[data-node="${CSS.escape(pid)}"]`))
+    .filter(Boolean);
+
+  if (!viewport || !explorer || !nodes.length) {
+    centerNode(id, .55);
+    return;
+  }
+
+  const viewportRect = viewport.getBoundingClientRect();
+  const rects = nodes.map(n => n.getBoundingClientRect());
+
+  const left = Math.min(...rects.map(r => r.left));
+  const right = Math.max(...rects.map(r => r.right));
+  const top = Math.min(...rects.map(r => r.top));
+  const bottom = Math.max(...rects.map(r => r.bottom));
+
+  const groupX = (left + right) / 2;
+  const groupY = (top + bottom) / 2;
+
+  ancestorView.x += viewportRect.left + viewportRect.width / 2 - groupX;
+  ancestorView.y += viewportRect.top + viewportRect.height * .42 - groupY;
+
+  applyAncestorTransform();
+}
+
+function centerHenry() {
+  centerNode(ROOT, .72);
+}
+
+function fitAncestorTree() {
+  const viewport = document.getElementById('ancestorViewport');
+  const explorer = document.getElementById('ancestorExplorer');
+  if (!viewport || !explorer) return;
+
+  const ew = explorer.scrollWidth;
+  const eh = explorer.scrollHeight;
+  const vw = viewport.clientWidth;
+  const vh = viewport.clientHeight;
+
+  if (!ew || !eh) return;
+
+  ancestorView.scale = clampScale(
+    Math.min((vw - 80) / ew, (vh - 80) / eh)
+  );
+
+  ancestorView.x = (vw - ew * ancestorView.scale) / 2;
+  ancestorView.y = (vh - eh * ancestorView.scale) / 2;
+
+  applyAncestorTransform();
+}
+
+
+function resetAncestorView() {
+  ancestorView.scale = 1;
+  ancestorView.x = 0;
+  ancestorView.y = 0;
+  applyAncestorTransform();
+
+  // Wait for the browser to apply the reset zoom, then return Henry
+  // to the familiar lower-center starting position.
+  requestAnimationFrame(() => centerHenry());
+}
+
+function setupAncestorPanZoom() {
+  const viewport = document.getElementById('ancestorViewport');
+  if (!viewport || viewport.dataset.panzoomReady) return;
+  viewport.dataset.panzoomReady = 'true';
+
+  let dragging = false;
+  let startX = 0, startY = 0;
+  let originX = 0, originY = 0;
+  const pointers = new Map();
+  let pinchStartDistance = 0;
+  let pinchStartScale = 1;
+
+  viewport.addEventListener('pointerdown', e => {
+    // Don't start dragging when pressing an actual button/card.
+    if (e.target.closest('button')) return;
+
+    viewport.setPointerCapture(e.pointerId);
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (pointers.size === 1) {
+      dragging = true;
+      viewport.classList.add('is-dragging');
+      startX = e.clientX;
+      startY = e.clientY;
+      originX = ancestorView.x;
+      originY = ancestorView.y;
+    } else if (pointers.size === 2) {
+      dragging = false;
+      const pts = [...pointers.values()];
+      pinchStartDistance = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
+      pinchStartScale = ancestorView.scale;
+    }
+  });
+
+  viewport.addEventListener('pointermove', e => {
+    if (!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (pointers.size === 2) {
+      const pts = [...pointers.values()];
+      const distance = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
+      if (!pinchStartDistance) return;
+
+      const midpointX = (pts[0].x + pts[1].x) / 2;
+      const midpointY = (pts[0].y + pts[1].y) / 2;
+      zoomAncestorAt(
+        midpointX,
+        midpointY,
+        pinchStartScale * (distance / pinchStartDistance)
+      );
+      return;
+    }
+
+    if (dragging) {
+      ancestorView.x = originX + (e.clientX - startX);
+      ancestorView.y = originY + (e.clientY - startY);
+      applyAncestorTransform();
+    }
+  });
+
+  function endPointer(e) {
+    pointers.delete(e.pointerId);
+    if (pointers.size < 2) pinchStartDistance = 0;
+
+    if (pointers.size === 0) {
+      dragging = false;
+      viewport.classList.remove('is-dragging');
+    }
+  }
+
+  viewport.addEventListener('pointerup', endPointer);
+  viewport.addEventListener('pointercancel', endPointer);
+
+  viewport.addEventListener('wheel', e => {
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? 1.12 : .89;
+    zoomAncestorAt(e.clientX, e.clientY, ancestorView.scale * factor);
+  }, { passive: false });
+
+  document.getElementById('resetView')?.addEventListener('click', resetAncestorView);
+}
+
+function renderAncestors(focusMode = null, focusId = null, anchorPoint = null) {
+  const levels = buildPedigreeLevels();
+  const maxDepth = levels.length - 1;
+  const totalSlots = Math.pow(2, maxDepth);
+
+  // Width grows with pedigree depth. This is intentional: on small screens
+  // the tree scrolls horizontally instead of squeezing unrelated branches together.
+  const cardWidth = window.innerWidth <= 900 ? 180 : 210;
+  const gap = window.innerWidth <= 900 ? 18 : 24;
+  const treeWidth = Math.max(
+    document.querySelector('.ancestor-wrap')?.clientWidth || 0,
+    totalSlots * cardWidth + (totalSlots - 1) * gap
+  );
+
+  const explorer = document.getElementById('ancestorExplorer');
+  explorer.style.width = `${treeWidth}px`;
+
+  const rows = [...levels].reverse();
+
+  explorer.innerHTML =
+    `<svg class="ancestor-lines" id="ancestorLines" aria-hidden="true"></svg>` +
+    rows.map((entries, rowIndex) => {
+      const depthFromHenry = maxDepth - rowIndex;
+      const slotSpan = Math.pow(2, maxDepth - depthFromHenry);
+
+      return `
+        <div class="generation" data-depth="${depthFromHenry}">
+          <div class="gen-label">${ancestorLabel(depthFromHenry, entries.length)}</div>
+          <div class="gen-row pedigree-row"
+               style="grid-template-columns: repeat(${totalSlots}, minmax(0, 1fr));">
+            ${entries.map(entry => {
+              const start = entry.slot * slotSpan + 1;
+              const end = start + slotSpan;
+              return `
+                <div class="pedigree-cell"
+                     style="grid-column: ${start} / ${end};">
+                  ${card(entry.id, entry.id === ROOT)}
+                </div>`;
+            }).join('')}
+          </div>
+        </div>`;
+    }).join('');
+
+  bindCards();
+  setupAncestorPanZoom();
+
+  requestAnimationFrame(() => {
+    drawAncestorLines();
+
+    if (!ancestorView.initialized) {
+      ancestorView.initialized = true;
+      centerHenry();
+      return;
+    }
+
+    if (focusMode === 'anchor' && focusId && anchorPoint) {
+      // Keep the clicked person's card in exactly the same viewport position
+      // after the pedigree grows or shrinks around it.
+      const node = explorer.querySelector(`[data-node="${CSS.escape(focusId)}"]`);
+      if (node) {
+        const rect = node.getBoundingClientRect();
+        const newX = rect.left + rect.width / 2;
+        const newY = rect.top + rect.height / 2;
+        ancestorView.x += anchorPoint.x - newX;
+        ancestorView.y += anchorPoint.y - newY;
+      }
+      applyAncestorTransform();
+    } else if (focusMode === 'parents' && focusId) {
+      centerParentsOf(focusId);
+    } else if (focusMode === 'person' && focusId) {
+      centerNode(focusId, .55);
+    } else {
+      // No automatic recentering. Keep the current pan/zoom position.
+      applyAncestorTransform();
+    }
+  });
+}
+
+function localBox(el, root) {
+  let x = 0, y = 0;
+  let node = el;
+
+  while (node && node !== root) {
+    x += node.offsetLeft;
+    y += node.offsetTop;
+    node = node.offsetParent;
+  }
+
+  return {
+    left: x,
+    top: y,
+    width: el.offsetWidth,
+    height: el.offsetHeight,
+    right: x + el.offsetWidth,
+    bottom: y + el.offsetHeight
+  };
+}
+
+function drawAncestorLines() {
+  const explorer = document.getElementById('ancestorExplorer');
+  const svg = document.getElementById('ancestorLines');
+  if (!explorer || !svg) return;
+
+  const width = explorer.scrollWidth;
+  const height = explorer.scrollHeight;
+
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  svg.setAttribute('width', width);
+  svg.setAttribute('height', height);
+
+  const visibleIds = new Set(
+    [...explorer.querySelectorAll('[data-node]')].map(el => el.dataset.node)
+  );
+
+  const paths = [];
+
+  visibleIds.forEach(childId => {
+    const childNode = explorer.querySelector(`[data-node="${CSS.escape(childId)}"]`);
+    const childCard = childNode?.querySelector('.person-card');
+    if (!childNode || !childCard) return;
+
+    const childRect = localBox(childCard, explorer);
+    const childX = childRect.left + childRect.width / 2;
+    const childY = childRect.top;
+
+    (PEOPLE[childId]?.parents || []).forEach(parentId => {
+      if (!visibleIds.has(parentId)) return;
+
+      const parentNode = explorer.querySelector(`[data-node="${CSS.escape(parentId)}"]`);
+      const parentCard = parentNode?.querySelector('.person-card');
+      if (!parentNode || !parentCard) return;
+
+      const parentCardRect = localBox(parentCard, explorer);
+      const parentNodeRect = localBox(parentNode, explorer);
+
+      const parentX = parentCardRect.left + parentCardRect.width / 2;
+      const parentY = parentNodeRect.bottom;
+
+      const midY = parentY + (childY - parentY) / 2;
+
+      paths.push(
+        `<path d="M ${parentX} ${parentY} V ${midY} H ${childX} V ${childY}" />`
+      );
+    });
+  });
+
+  svg.innerHTML = paths.join('');
+}
+
+function bindCards() {
+  document.querySelectorAll('[data-person]').forEach(el => {
+    el.onclick = () => showPerson(el.dataset.person);
+  });
+
+  document.querySelectorAll('[data-expand]').forEach(el => {
+    el.onclick = () => {
+      const id = el.dataset.expand;
+      const clickedNode = el.closest('[data-node]');
+      const clickedRect = clickedNode?.getBoundingClientRect();
+      const anchorPoint = clickedRect ? {
+        x: clickedRect.left + clickedRect.width / 2,
+        y: clickedRect.top + clickedRect.height / 2
+      } : null;
+
+      if (openBranches.has(id)) {
+        // Also collapse anything above this branch.
+        const collapseBranch = targetId => {
+          openBranches.delete(targetId);
+          (PEOPLE[targetId]?.parents || []).forEach(collapseBranch);
+        };
+        collapseBranch(id);
+
+        // Stay with the person whose branch was collapsed.
+        renderAncestors('anchor', id, anchorPoint);
+      } else {
+        openBranches.add(id);
+
+        // Move toward the newly revealed parent pair rather than jumping to Henry.
+        renderAncestors('anchor', id, anchorPoint);
+      }
+    };
+  });
+}
+
+window.addEventListener('resize', () => {
+  clearTimeout(window.__ancestorResizeTimer);
+  window.__ancestorResizeTimer = setTimeout(() => {
+    drawAncestorLines();
+    applyAncestorTransform();
+  }, 100);
+});
+
+function relationSection(label, ids) {
+  const valid = (ids || []).filter(id => PEOPLE[id]);
+  if (!valid.length) return '';
+
+  return `<div class="fact">
+    <small>${esc(label)}</small>
+    ${valid.map(id => esc(PEOPLE[id].name)).join('<br>')}
+  </div>`;
+}
+
+function showPerson(id){
+  const p=PEOPLE[id]; if(!p) return;
+
+  const spouseBits=(p.spouses||[]).map(s=>{
+    const md=s.marriage?.date||'', mp=s.marriage?.place||'';
+    return `<div class="fact"><small>Marriage</small><strong>${esc(s.name)}</strong>${md?`<br>${esc(md)}`:''}${mp?`<br>${esc(mp)}`:''}</div>`;
+  }).join('');
+
+  document.getElementById('drawerBody').innerHTML=`
+    <h3>${esc(p.name)}</h3>
+
+    ${p.birth?.date||p.birth?.place?`<div class="fact"><small>Born</small>${esc(p.birth?.date||'')}${p.birth?.place?`<br>${esc(p.birth.place)}`:''}</div>`:''}
+
+    ${p.death?.date||p.death?.place?`<div class="fact"><small>Died</small>${esc(p.death?.date||'')}${p.death?.place?`<br>${esc(p.death.place)}`:''}</div>`:''}
+
+    ${spouseBits}
+
+    ${relationSection('Parents', p.parents)}
+    ${relationSection('Siblings', p.siblings)}
+    ${relationSection('Children', p.children)}
+
+    ${(p.parents||[]).length?`<div class="drawer-actions"><button data-drawer-expand="${esc(id)}">Show this person’s parents ↑</button></div>`:''}
+  `;
+
+  document.querySelector('[data-drawer-expand]')?.addEventListener('click',()=>{
+    openBranches.add(id);
+    renderAncestors('parents', id);
+    closeDrawer();
+    document.querySelector('[data-view="ancestors"]').click();
+  });
+
+  document.getElementById('drawer').classList.add('is-open');
+  document.getElementById('overlay').classList.add('is-open');
+  document.getElementById('drawer').setAttribute('aria-hidden','false');
+}
+
+function closeDrawer(){
+  document.getElementById('drawer').classList.remove('is-open');
+  document.getElementById('overlay').classList.remove('is-open');
+  document.getElementById('drawer').setAttribute('aria-hidden','true');
+}
+document.getElementById('drawerClose').onclick=closeDrawer;
+document.getElementById('overlay').onclick=closeDrawer;
+document.addEventListener('keydown',e=>{if(e.key==='Escape') closeDrawer();});
+
+function renderBuhler(){
+  const track=document.getElementById('buhlerTrack');
+  track.innerHTML=BUHLER_LINE.map((id,i)=>{
+    const p=PEOPLE[id];
+    return `${i?'<div class="line-arrow">←</div>':''}<button class="line-person" data-line-person="${esc(id)}">
+      <div class="name">${esc(p.name)}</div>
+      <div class="dates">${esc(years(p))}</div>
+      <div class="place">${esc(primaryPlace(p))}</div>
+    </button>`;
+  }).join('');
+  document.querySelectorAll('[data-line-person]').forEach(b=>b.onclick=()=>showPerson(b.dataset.linePerson));
+}
+
+function renderDesc(){
+  const root=DESC.couple;
+  const branches=DESC.children.map(branch=>`
+    <section class="family-branch">
+      <h3>${esc(branch.name)}${branch.spouse ? ` + ${esc(branch.spouse)}` : ''}</h3>
+      ${branch.status ? `<div class="branch-meta">${esc(branch.status)}</div>` : ''}
+      ${branch.children.length ? branch.children.map(gc=>`
+        <div class="grandchild">
+          <strong>${esc(gc.name)}${gc.spouse ? ` + ${esc(gc.spouse)}` : ''}</strong>
+          ${gc.children.length?`<div class="greats">${gc.children.map(x=>`<span>${esc(x)}</span>`).join('')}</div>`:(gc.childrenNote?`<div class="greats"><span>${esc(gc.childrenNote)}</span></div>`:'')}
+        </div>`).join('') : `<div class="empty-note">Grandchildren not yet individually identified in this archive.</div>`}
+    </section>`).join('');
+  document.getElementById('descendantTree').innerHTML=`
+    <div class="desc-root">
+      <strong>${esc(root.a)} + ${esc(root.b)}</strong>
+      <div>${esc(root.aDates)} · ${esc(root.bDates)} · ${esc(root.married)}</div>
+      <div class="desc-summary">${esc(root.summary)}</div>
+    </div>
+    <div class="child-grid">${branches}</div>`;
+}
+
+
+function setupLineageDragScroll() {
+  const wrap = document.querySelector('.line-wrap');
+  if (!wrap || wrap.dataset.dragReady) return;
+
+  wrap.dataset.dragReady = 'true';
+
+  let dragging = false;
+  let startX = 0;
+  let startScroll = 0;
+
+  wrap.addEventListener('pointerdown', e => {
+    // Let person cards still respond to normal clicks.
+    if (e.target.closest('[data-line-person]')) return;
+
+    dragging = true;
+    startX = e.clientX;
+    startScroll = wrap.scrollLeft;
+    wrap.classList.add('is-dragging');
+    wrap.setPointerCapture(e.pointerId);
+  });
+
+  wrap.addEventListener('pointermove', e => {
+    if (!dragging) return;
+
+    const dx = e.clientX - startX;
+    wrap.scrollLeft = startScroll - dx;
+  });
+
+  function stopDrag(e) {
+    if (!dragging) return;
+    dragging = false;
+    wrap.classList.remove('is-dragging');
+
+    if (wrap.hasPointerCapture?.(e.pointerId)) {
+      wrap.releasePointerCapture(e.pointerId);
+    }
+  }
+
+  wrap.addEventListener('pointerup', stopDrag);
+  wrap.addEventListener('pointercancel', stopDrag);
+  wrap.addEventListener('pointerleave', e => {
+    if (dragging) stopDrag(e);
+  });
+}
+
+renderAncestors();
+renderBuhler();
+renderDesc();
+setupLineageDragScroll();
+</script>
+
+<script>
+  if (new URLSearchParams(window.location.search).get('embedded') === '1') {
+    document.body.classList.add('is-embedded');
+  }
+</script>
+
+</body>
+</html>
