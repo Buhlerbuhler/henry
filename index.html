@@ -242,6 +242,58 @@
     outline: 0;
   }
 
+
+  .family-tree-link {
+    display: grid;
+    grid-template-columns: 3.3rem 1fr auto;
+    gap: .75rem;
+    align-items: center;
+    width: 100%;
+    padding: 1rem;
+    border-bottom: 2px solid var(--line);
+    background: var(--ink);
+    color: var(--paper);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    font-weight: 900;
+    min-height: 76px;
+  }
+
+  .family-tree-link .family-tree-mark {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.8rem;
+    line-height: .9;
+  }
+
+  .family-tree-link .family-tree-copy {
+    display: grid;
+    gap: .15rem;
+  }
+
+  .family-tree-link .family-tree-copy small {
+    color: var(--paper-deep);
+    font-size: .68rem;
+    letter-spacing: .08em;
+  }
+
+  .family-tree-link .family-tree-arrow {
+    font-size: 1.35rem;
+    transition: transform .15s ease;
+  }
+
+  .family-tree-link:hover,
+  .family-tree-link:focus-visible {
+    background: var(--red);
+    color: var(--paper);
+    outline: 0;
+  }
+
+  .family-tree-link:hover .family-tree-arrow,
+  .family-tree-link:focus-visible .family-tree-arrow {
+    transform: translateX(.25rem);
+  }
+
   .reading-stage {
     min-height: 70vh;
     position: relative;
@@ -522,6 +574,11 @@
         <button class="tab" data-target="chapter-7" aria-selected="false"><span>07</span><b>Building a Life</b></button>
         <button class="tab" data-target="chapter-8" aria-selected="false"><span>08</span><b>Home</b></button>
         <button class="tab" data-target="closing-note" aria-selected="false"><span>09</span><b>Editor’s Closing Note</b></button>
+        <a class="family-tree-link" href="family-tree.html">
+          <span class="family-tree-mark">↳</span>
+          <span class="family-tree-copy"><b>Family Tree</b><small>Explore the Hajer family archive</small></span>
+          <span class="family-tree-arrow">→</span>
+        </a>
       </nav>
 
       <div class="reading-stage">
