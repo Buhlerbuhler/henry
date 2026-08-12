@@ -351,7 +351,69 @@
     padding: clamp(1rem, 4vw, 4rem);
     max-width: 980px;
   }
+.archive-photo {
+  margin: 2.2rem 0;
+  border-top: 2px solid var(--line);
+  border-bottom: 2px solid var(--line);
+  padding: 1rem 0;
+}
 
+.archive-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: var(--paper-deep);
+}
+
+.archive-photo figcaption {
+  margin-top: .65rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: .78rem;
+  line-height: 1.35;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--muted);
+}
+
+.archive-photo.small {
+  max-width: 420px;
+}
+
+.archive-photo.medium {
+  max-width: 620px;
+}
+
+.archive-photo.full {
+  max-width: 100%;
+}
+
+.archive-photo.float-right {
+  float: right;
+  width: min(42%, 360px);
+  margin: .4rem 0 1.2rem 2rem;
+}
+
+.archive-photo.two-up {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.archive-photo.two-up img {
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .archive-photo.float-right {
+    float: none;
+    width: 100%;
+    margin: 2rem 0;
+  }
+
+  .archive-photo.two-up {
+    grid-template-columns: 1fr;
+  }
+}
   .eyebrow {
     margin: 0 0 1rem;
     color: var(--red);
@@ -625,10 +687,17 @@
                 <p>My recollections of my childhood in Wymyschle date back only a few years prior to the start of the Second World War, which began on September 1, 1939.</p>
                 <p>Wymyschle consisted of about thirty-five small farms, which offered only a meagre existence for the families living there. Our farm raised mainly rye and potatoes, as well as hay for the few cows that supplied us with milk and cheese. Like most families, we owned only one horse. A few pigs and chickens supplemented the rest of our income.</p>
                 <p>Since the village was populated mainly by Mennonites, we spoke Low German at home and High German in church, which was the centre of much of our community life for both old and young. As a six or seven-year-old, I had to memorize a new Bible verse every week for Sunday School.</p>
+                
                 <p>Our family consisted of my parents, my brother Willi, my sisters Bertha, Hilla, and Thilde, then I came along, followed by my sister Ruth and my youngest brother, Harry.</p>
+                <figure class="archive-photo full">
+  <img src="https://raw.githubusercontent.com/Buhlerbuhler/henry/refs/heads/main/dads-family-dad.jpg" alt="Henry Hajer's family in an old family portrait">
+</figure>
                 <p>My older brothers and sisters helped with the many chores on the farm, such as seeding by broadcasting, planting potatoes, cutting hay, and the household work. Even at the age of eight to ten, I was expected to help by hoeing, pulling weeds, and harvesting potatoes.</p>
                 <p>During the winter months, the older children were active in the church choir, music, and youth activities. During the long winter evenings we listened to Dad read the newspaper Zionsbote, which was mailed to us from America by uncles who had immigrated there in the early 1920s. Dad had to sit close to the lamp because of its dim flame.</p>
                 <p>In addition to my parents and their seven children, Grandpa Hajer and Aunt Tina lived with us, making our home very crowded. My recollection of our family life is one of hard work and toil, but also of church, family, and the ordinary routines of farm life.</p>
+                <figure class="archive-photo full">
+  <img src="https://raw.githubusercontent.com/Buhlerbuhler/henry/refs/heads/main/800px-DeutschWymysle.jpg" alt="Map showing Wymyschle Niemieckie and the surrounding area">
+</figure>
                 <p>Then, in 1939, war broke out between Germany and Poland. The little one-room school that I attended quickly changed to teaching only in Polish. The attitude of our Polish neighbours also changed almost immediately.</p>
               </div>
             </section>
@@ -769,12 +838,18 @@
                 <p>It did not take long for me to make friends at the camp. The Foth family and the Bartel family from Poland were also there. Ben Foth and Ron Bartel became my close buddies.</p>
                 <p>They especially pointed out a group of girls from the Harder family. At first I was very attracted to the twin sisters, who were my age, but then Leni, the youngest of the four, made a lasting impression on me.</p>
                 <p>My attempts to ask her on a date failed at first, but eventually they succeeded. Leni wasted no time pointing out the package of cigarettes in my shirt pocket and making her disapproval known.</p>
+                <figure class="archive-photo small float-right">
+  <img src="https://raw.githubusercontent.com/Buhlerbuhler/henry/refs/heads/main/W20.jpg" alt="Young Henry Hajer in a suit">
+</figure>
                 <p>The Harder sisters and their mother faithfully attended church at the camp meeting hall. Leni had no trouble convincing me to come along, and before I realized it I was singing in the camp church choir.</p>
                 <p>Our discussions during our dates centred around religion, sin, forgiveness, and, of course, eternal life. On August 22, 1948, in the evening, I decided to accept what Christ had done for me personally, receive forgiveness, and become a child of God. This took place in a forest just outside the camp.</p>
                 <p>Jesus helped me to change from that moment on. I quit smoking and have never done it again.</p>
                 <p>My friends Ron and Ben took the same step of faith the following day.</p>
                 <p>A few weeks later, on September 28, 1948, I was baptized in Gronau, Germany.</p>
                 <p>The relationship with Leni grew, and we promised to make contact again when we were both in Canada. Helen and her family left Fallingbostel in September 1948, and our family followed in October.</p>
+                <figure class="archive-photo full">
+  <img src="https://raw.githubusercontent.com/Buhlerbuhler/henry/refs/heads/main/H166.jpg" alt="Young Henry and Helen standing together outdoors">
+ </figure>
                 <p>By then, the immigration process for Canada had begun. Dad had established contact with his three brothers in the United States, and through their assistance had made contact with MCC. At one time we had expected to immigrate to Paraguay and had even purchased implements and farm tools for that purpose. But by God’s leading, permission was granted for us to go to Canada instead.</p>
                 <p>We did not yet know what life in Canada would bring, but once again the Lord had opened a way forward.</p>
               </div>
@@ -798,6 +873,10 @@
               <div class="body-copy">
                 <p>The Harder family left for Canada about one month before us. We arrived in Halifax aboard the S.S. General Langfitt on October 22, 1948. The voyage across the Atlantic was not pleasant. It was very stormy, and we became seasick.</p>
                 <p>Upon our arrival in Halifax, we boarded a train bound for Winnipeg. As I observed the landscape of Nova Scotia and northern Quebec, I could not understand why we had left Germany. I became homesick. We stopped in Montreal and Sherbrooke before finally arriving in Winnipeg.</p>
+                <figure class="archive-photo full">
+  <img src="https://raw.githubusercontent.com/Buhlerbuhler/henry/refs/heads/main/092215102.jpg" alt="The General W. C. Langfitt at sea">
+  <figcaption>The General W. C. Langfitt, recorded in family records as the ship that brought the Hajer family to Halifax in October 1948.</figcaption>
+</figure>
                 <p>In order to immigrate to Canada, it was necessary to have a sponsor who would guarantee employment. Our travel expenses also had to be paid in advance. This was arranged by my uncles in the United States, and the debt was paid off after we had been in Canada for one year.</p>
                 <p>At the CPR station in Winnipeg, we were greeted by a truck driver representing the Manitoba Sugar Company, our sponsors, who had arranged work for us during our first year in Canada. Our belongings were loaded onto a two-ton truck. Mom and Dad rode in the cab, while my sisters and I huddled together in the back.</p>
                 <p>I will never forget that cold ride to Oakville, near Portage la Prairie.</p>
@@ -812,6 +891,9 @@
                 <p>In the spring of 1950, Helen moved to Winnipeg. Since Helen and her family had first settled in Saskatchewan, she had found employment at the Bible School in Herbert, Saskatchewan.</p>
                 <p>Here in Winnipeg we established our relationship anew. Even though Helen had some doubts about this young man from Poland, I did some serious praying, and God answered.</p>
                 <p>Our relationship blossomed. We became engaged on May 7, 1950, and were married on September 16, 1950, in a double wedding with Helen’s sister Suzie and Frank Kliewer. Helen’s family had moved to Winnipeg during that same summer.</p>
+                <figure class="archive-photo medium">
+  <img src="https://raw.githubusercontent.com/Buhlerbuhler/henry/refs/heads/main/S60.jpg" alt="Henry and Helen Hajer on their wedding day">
+</figure>
                 <p>I have not always walked as a child of God ought to, but I must confess that the Lord has never disappointed us. God gave me the hardest-working, faithful wife.</p>
                 <p>And, of course, God blessed us with a wonderful family.</p>
               </div>
@@ -836,6 +918,10 @@
                 <p>On July 12, 1951, our first child, Rudy, was born. During the following years, the Lord blessed us with two more sons, Herbert and Harvey, and our long-awaited daughter, Wendy. To bring some balance to our family, we later welcomed two more daughters through adoption, Cindy and Jennifer.</p>
                 <p>The Lord blessed us in a most wonderful way.</p>
                 <p>Helen was a faithful wife and mother, and her relationship with God was the core of her life. She witnessed whenever and wherever she could, and her faith was woven into all her commitments and interests. She opened her heart not only to our own children, but also to many foster children who came through our home.</p>
+                <figure class="archive-photo full">
+  <img src="https://raw.githubusercontent.com/Buhlerbuhler/henry/refs/heads/main/IMG-20220412-WA0008.jpg" alt="Henry and Helen with family at a wedding">
+  
+</figure>
                 <p>Helen also had an artistic nature. Her talent showed itself especially in sewing, and over time her many designs—particularly wedding gowns—grew into her own business and shop in downtown Winnipeg.</p>
                 <p>My work at Western Grocers was briefly interrupted in 1959 when our family planned to move to California, but after a few months we abandoned those plans. I returned to Western Grocers and gradually advanced through several positions in the warehouse and office.</p>
                 <p>For six years I travelled extensively as supervisor of the Independent Trade, responsible for store development and retail operations. Those were demanding years for Helen, who often cared for our family alone four days each week.</p>
@@ -865,9 +951,18 @@
               <h2>Home</h2>
               <div class="body-copy">
                 <p>In 1993, we moved from the city to St. Laurent, which became our permanent home until 2005. During many winters, the Lord provided enough that we were able to spend time in Hawaii and other warm places.</p>
+                <figure class="archive-photo full">
+  <img src="https://raw.githubusercontent.com/Buhlerbuhler/henry/refs/heads/main/S08.jpg" alt="Henry and Helen sitting on rocks near the ocean in Hawaii">
+</figure>
                 <p>Those years were a blessing to us. In Hawaii, we enjoyed the warm beaches, the friendships we made, and the local church community that became part of our lives. In the summers, much of our time was spent at the cottage, where we hosted family and friends with many good meals, barbecues, and days by the lake.</p>
+                <figure class="archive-photo full">
+  <img src="https://raw.githubusercontent.com/Buhlerbuhler/henry/refs/heads/main/W22.jpg" alt="The Hajer cottage ">
+</figure>
                 <p>Helen was always active. She especially enjoyed swimming and waterskiing, and she loved having people gathered around. The cottage became a place where family could come together.</p>
                 <p>I spent many days in the garden and was always happy to share the harvest with our children and grandchildren. As we grew older and the winters became harsher, we moved back to the city, but we continued travelling Highway 6 to the cottage as often as we could. Many days were still spent there, with me in the garden or on the riding mower, and Helen cutting the lawn with the walking mower.</p>
+                <figure class="archive-photo full">
+  <img src="https://raw.githubusercontent.com/Buhlerbuhler/henry/refs/heads/main/S11.jpg" alt="Henry Hajer in his tomato garden">
+</figure>
                 <p>Our church home in Winnipeg was initially South End MB Church, located at Juno and William. Helen was baptized there. I had been baptized earlier in Gronau, Germany.</p>
                 <p>When Portage Avenue MB Church was founded, we attended there for a short time before transferring to Elmwood MB Church, since we lived nearby.</p>
                 <p>After moving to St. Laurent, we joined the local Mission Church, which was supported by and affiliated with the EMMC.</p>
@@ -896,6 +991,10 @@
               <div class="body-copy">
                 <p>Helen passed away peacefully on March 4, 2022, at the age of eighty-nine. She and Henry had been married for seventy-one years.</p>
                 <p>Henry followed just thirty-seven days later, passing away on April 10, 2022, at the age of ninety-three. Their lives had been shaped by faith, family, work, hospitality, and a deep devotion to one another.</p>
+                <figure class="archive-photo medium">
+  <img src="https://raw.githubusercontent.com/Buhlerbuhler/henry/refs/heads/main/S21.jpg" alt="Henry and Helen Hajer together later in life">
+ 
+</figure>
               </div>
             </section>
           </div>
