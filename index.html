@@ -645,7 +645,13 @@
       max-height: 88vh;
     }
   }
-
+@media (max-width: 900px) {
+  h2 {
+    font-size: clamp(2.55rem, 13vw, 4.25rem);
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+}
   @media print {
     .tabs,
     .enter-button,
